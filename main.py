@@ -127,6 +127,17 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     return u_int / norm, E_root
 
 
+print(r"""
+╔════════════════════════════════════════════════════════════════════════════════════╗
+║   ____  _____ _____   _   _      _ _                      _   _                    ║
+║  |  _ \|  ___|_   _| | | | | ___| (_)_   _ _ __ ___      / \ | |_ ___  _ __ ___    ║
+║  | | | | |_    | |   | |_| |/ _ \ | | | | | '_ ` _ \    / _ \| __/ _ \| '_ ` _ \   ║
+║  | |_| |  _|   | |   |  _  |  __/ | | |_| | | | | | |  / ___ \ || (_) | | | | | |  ║
+║  |____/|_|     |_|   |_| |_|\___|_|_|\__,_|_| |_| |_| /_/   \_\__\___/|_| |_| |_|  ║
+║                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════╝
+""")
+
 # --- GENERAL PARAMETERS --- #
 Z = 2
 convergence_threshold = 1e-4
@@ -150,7 +161,7 @@ u_old = u_ind
 E_old = E_root
 V_eff = np.zeros_like(grid.r)
 
-print("\n=== ENTERING SELF CONSISTENT LOOP ===")
+print("\n═══ ENTERING SELF CONSISTENT LOOP ═══")
 iteration = 1
 while True:
     V_hartree_old = poisson_integrate(u_old, grid.r)
@@ -176,9 +187,11 @@ u_sol = u_new
 E_1_sol = E_new
 TOTEN_sol = TOTEN_new
 
-print("\n=== RESULTS WITH POTENTIALS ===")
+print("\n═══ RESULTS ═══")
 print(f"Single electron eigenvalue E_1: {E_1_sol:.4f}")
 print(f"Total energy TOTEN: {TOTEN_sol:.4f}")
+
+print("\n"+"═"*87)
 
 plt.figure(figsize=(10, 6))
 plt.plot(grid.r, u_sol, label="u_sol")
