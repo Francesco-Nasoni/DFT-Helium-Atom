@@ -37,8 +37,8 @@ def verlet_integrate_1D(fun, y_0, y_1, line_grid):
     for i in range(2, len(line_grid)):
         y_prev = y_integrated[i - 1]
         y_pprev = y_integrated[i - 2]
-        f_val = fun(line_grid[i - 1], y_prev, i - 1)
-        y_next = 2 * y_prev - y_pprev + f_val * h2
+        f_prev = fun(line_grid[i - 1], y_prev, i - 1)
+        y_next = 2 * y_prev - y_pprev + f_prev * h2
         y_integrated[i] = y_next
 
     return y_integrated
@@ -68,14 +68,12 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     u_rmax = grid.r_max * np.exp(-Z * grid.r_max)
     u_rmax_h = (grid.r_max - grid.h) * np.exp(-Z * grid.r_max + Z * h)
 
+    # Flip V_eff to match the reversed grid for backward integration
+    V_eff_rev = np.flip(V_eff)
+
     # Look for two points where u(0) chenges sign for the bisect method
     u_0 = verlet_integrate_1D(
-        lambda r, ur, idx: F(
-            E_bounds[0],
-            V_eff[len(grid.r) - 1 - idx] if hasattr(V_eff, "__len__") else V_eff,
-            r,
-            ur,
-        ),
+        lambda r, ur, idx: F(E_bounds[0], V_eff_rev[idx], r, ur),
         u_rmax,
         u_rmax_h,
         grid.r_rev,
@@ -85,12 +83,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     E_bisect_range = None
     for E_test in np.arange(E_bounds[0] + E_rough_step, E_bounds[1], E_rough_step):
         u_i = verlet_integrate_1D(
-            lambda r, ur, idx: F(
-                E_test,
-                V_eff[len(grid.r) - 1 - idx] if hasattr(V_eff, "__len__") else V_eff,
-                r,
-                ur,
-            ),
+            lambda r, ur, idx: F(E_test, V_eff_rev[idx], r, ur),
             u_rmax,
             u_rmax_h,
             grid.r_rev,
@@ -109,12 +102,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     # Proper bisect method
     E_root = bisect(
         lambda e: verlet_integrate_1D(
-            lambda r, ur, idx: F(
-                e,
-                V_eff[len(grid.r) - 1 - idx] if hasattr(V_eff, "__len__") else V_eff,
-                r,
-                ur,
-            ),
+            lambda r, ur, idx: F(e, V_eff_rev[idx], r, ur),
             u_rmax,
             u_rmax_h,
             grid.r_rev,
@@ -127,12 +115,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     # NOTE: np.flip is necessary since we are integrating backwords r_max -> 0
     u_int = np.flip(
         verlet_integrate_1D(
-            lambda r, ur, idx: F(
-                E_root,
-                V_eff[len(grid.r) - 1 - idx] if hasattr(V_eff, "__len__") else V_eff,
-                r,
-                ur,
-            ),
+            lambda r, ur, idx: F(E_root, V_eff_rev[idx], r, ur),
             u_rmax,
             u_rmax_h,
             grid.r_rev,
@@ -156,7 +139,9 @@ E_search_range = (-3, 0)
 E_rough_step = 0.1
 
 # --- FIRST CALCULATION WITH V_eff=0 --- #
-u_ind, E_root = solve_shrodinger(grid, Z, 0, E_search_range, E_rough_step)
+u_ind, E_root = solve_shrodinger(
+    grid, Z, np.zeros(len(grid.r)), E_search_range, E_rough_step
+)
 
 print(f"Initial single electron eigenvalue: {E_root:.4f}")
 
