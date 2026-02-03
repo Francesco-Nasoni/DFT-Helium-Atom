@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.integrate import simpson
-from solver import verlet_integrate_1D
+from source.solver import verlet_integrate_1D
 
 def get_V_h(u_r, line_grid):
     h = np.abs(line_grid[1] - line_grid[0])
