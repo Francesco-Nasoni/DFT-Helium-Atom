@@ -68,16 +68,47 @@ def get_V_x(u_r, line_grid):
     return vx
 
 
+def get_V_c(u_r, line_grid):
+
+    # Coefficienti PZ81
+    gamma = -0.1423
+    beta1 = 1.0529
+    beta2 = 0.3334
+    A = 0.0311
+    B = -0.048
+    C = 0.0020
+    D = -0.0116
+
+    n = simpson(u_r**2, line_grid)
+    r_s = (3 / (4 * np.pi * n)) ** (1 / 3)
+    mask_rs_low = r_s > 1
+
+    sqrt_rs = np.sqrt(r_s)
+    log_rs = np.log(r_s)
+
+    # High density
+    ec_low = gamma / (1 + beta1 * sqrt_rs + beta2 * r_s)
+    numerator = 1 + (7 / 6) * beta1 * sqrt_rs + (4 / 3) * beta2 * r_s
+    denominator = 1 + beta1 * sqrt_rs + beta2 * r_s
+    vc_low = ec_low * (numerator / denominator)
+
+    # Low density
+    ec_high = A * log_rs + B + C * r_s * log_rs + D * r_s
+    vc_high = A * log_rs + B - A / 3 + (2 / 3) * C * r_s * log_rs + (2 * D - C) * r_s / 3
+
+    v_c = np.where(mask_rs_low, vc_low, vc_high)
+    ec_r = np.where(mask_rs_low, ec_low, ec_high)
+
+    return v_c, ec_r
 
 
-def get_TOTEN(E, u_r, line_grid, v_h, v_x=None, v_c=None):
+def get_TOTEN(E, u_r, line_grid, v_h, v_x=None, v_c=None, ec_c=None):
 
     toten = 2 * E - simpson(v_h * u_r**2, line_grid)
     if v_x is not None:
         toten += -0.5 * simpson(v_x * u_r**2, line_grid)
     if v_c is not None:
-        # TODO
-        ...
+        toten += simpson((ec_c - v_c) * 2 * u_r**2, line_grid)
 
     return toten
 
@@ -179,14 +210,14 @@ u_ind, E_root = solve_shrodinger(
 print(f"Initial single electron eigenvalue: {E_root:.4f}")
 
 # -------------------------------
-# --- SELF-CONSISTENT PART ---#
+#  --- SELF-CONSISTENT PART ---
 # -------------------------------
-u_old = u_ind
-E_old = E_root
-V_H_calc = 2 * poisson_integrate(u_old, grid.r)
-V_X_calc = get_V_x(u_old, grid.r)
-V_eff_input = V_H_calc + V_X_calc
-TOTEN_old = get_TOTEN(E_old, u_old, grid.r, V_H_calc, V_X_calc)
+
+V_H_calc = 2 * poisson_integrate(u_ind, grid.r)
+V_X_calc = get_V_x(u_ind, grid.r)
+V_C_calc, ec_calc = get_V_c(u_ind, grid.r)
+V_eff_input = V_H_calc + V_X_calc + V_C_calc
+TOTEN_old = get_TOTEN(E_root, u_ind, grid.r, V_H_calc, V_X_calc, V_C_calc, ec_calc)
 
 print("\n═══ ENTERING SELF CONSISTENT LOOP ═══")
 iteration = 1
@@ -195,9 +226,10 @@ while True:
     u_new, E_new = solve_shrodinger(grid, Z, V_eff_input, E_search_range, E_rough_step)
     V_H_new = 2 * poisson_integrate(u_new, grid.r)
     V_X_new = get_V_x(u_new, grid.r)
-    V_eff_output = V_H_new + V_X_new
+    V_C_new, ec_new = get_V_c(u_new, grid.r)
+    V_eff_output = V_H_new + V_X_new + V_C_new
 
-    TOTEN_new = get_TOTEN(E_new, u_new, grid.r, V_H_new, V_X_new)
+    TOTEN_new = get_TOTEN(E_new, u_new, grid.r, V_H_new, V_X_new, V_C_new, ec_new)
 
     E_diff = np.abs(TOTEN_new - TOTEN_old)
     print(f"Iteration {iteration:3d}: ΔE = {E_diff:.6e} | E_tot = {TOTEN_new:.6f}")
