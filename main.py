@@ -63,6 +63,24 @@ def poisson_integrate(u_r, line_grid):
     return V_hartree
 
 
+def V_x(u_r, line_grid):
+    vx = -((3 * (u_r**2) / 2 / np.pi / np.pi / line_grid / line_grid) ** (1 / 3))
+    return vx
+
+
+def get_TOTEN(E, u_r, line_grid, v_h, v_x=None, v_c=None):
+
+    if v_x is not None:
+        toten += -0.5 * simpson(v_x * u_r**2, line_grid)
+
+    toten = 2 * E - simpson(v_h * u_r**2, line_grid)
+    return toten
+
+
+# def get_TOTEN_h(V_h, E, u_r, line_grid):
+#         TOTEN = 2 * E - simpson(V_h * u_r**2, line_grid)
+
+
 def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     h = grid.h
     u_rmax = grid.r_max * np.exp(-Z * grid.r_max)
@@ -127,7 +145,8 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     return u_int / norm, E_root
 
 
-print(r"""
+print(
+    r"""
 ╔════════════════════════════════════════════════════════════════════════════════════╗
 ║   ____  _____ _____   _   _      _ _                      _   _                    ║
 ║  |  _ \|  ___|_   _| | | | | ___| (_)_   _ _ __ ___      / \ | |_ ___  _ __ ___    ║
@@ -136,11 +155,14 @@ print(r"""
 ║  |____/|_|     |_|   |_| |_|\___|_|_|\__,_|_| |_| |_| /_/   \_\__\___/|_| |_| |_|  ║
 ║                                                                                    ║
 ╚════════════════════════════════════════════════════════════════════════════════════╝
-""")
+"""
+)
 
 # --- GENERAL PARAMETERS --- #
 Z = 2
 convergence_threshold = 1e-4
+calc_exchange = True
+calc_correlation = True
 
 # --- GRID --- #
 grid = RadialGrid(r_min=1e-6, r_max=10.0, h=1e-3)
@@ -156,7 +178,9 @@ u_ind, E_root = solve_shrodinger(
 
 print(f"Initial single electron eigenvalue: {E_root:.4f}")
 
+# -------------------------------
 # --- SELF-CONSISTENT PART ---#
+# ------------------------------
 u_old = u_ind
 E_old = E_root
 V_eff = np.zeros_like(grid.r)
@@ -165,12 +189,12 @@ print("\n═══ ENTERING SELF CONSISTENT LOOP ═══")
 iteration = 1
 while True:
     V_hartree_old = poisson_integrate(u_old, grid.r)
-    TOTEN_old = 2 * E_old - simpson(V_hartree_old * u_old**2, grid.r)
+    TOTEN_old = get_TOTEN(E_old, u_old, grid.r, V_hartree_old)
     V_eff = V_hartree_old
 
     u_new, E_new = solve_shrodinger(grid, Z, V_eff, E_search_range, E_rough_step)
     V_hartree_new = poisson_integrate(u_new, grid.r)
-    TOTEN_new = 2 * E_new - simpson(V_hartree_new * u_new**2, grid.r)
+    TOTEN_new = get_TOTEN(E_new, u_new, grid.r, V_hartree_new)
 
     E_diff = np.abs(TOTEN_new - TOTEN_old)
     print(f"Iteration {iteration}: ΔE = {E_diff}")
@@ -191,7 +215,7 @@ print("\n═══ RESULTS ═══")
 print(f"Single electron eigenvalue E_1: {E_1_sol:.4f}")
 print(f"Total energy TOTEN: {TOTEN_sol:.4f}")
 
-print("\n"+"═"*87)
+print("\n" + "═" * 87)
 
 plt.figure(figsize=(10, 6))
 plt.plot(grid.r, u_sol, label="u_sol")
@@ -203,3 +227,5 @@ plt.ylabel("u(r)")
 plt.title("Integrated u(r)")
 plt.grid(True)
 plt.show()
+
+#! Make F depend on Z, so it is more elastic
