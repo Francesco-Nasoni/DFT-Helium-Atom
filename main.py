@@ -63,22 +63,23 @@ def poisson_integrate(u_r, line_grid):
     return V_hartree
 
 
-def V_x(u_r, line_grid):
+def get_V_x(u_r, line_grid):
     vx = -((3 * (u_r**2) / 2 / np.pi / np.pi / line_grid / line_grid) ** (1 / 3))
     return vx
 
 
+
+
 def get_TOTEN(E, u_r, line_grid, v_h, v_x=None, v_c=None):
 
+    toten = 2 * E - simpson(v_h * u_r**2, line_grid)
     if v_x is not None:
         toten += -0.5 * simpson(v_x * u_r**2, line_grid)
+    if v_c is not None:
+        # TODO
+        ...
 
-    toten = 2 * E - simpson(v_h * u_r**2, line_grid)
     return toten
-
-
-# def get_TOTEN_h(V_h, E, u_r, line_grid):
-#         TOTEN = 2 * E - simpson(V_h * u_r**2, line_grid)
 
 
 def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
@@ -161,14 +162,13 @@ print(
 # --- GENERAL PARAMETERS --- #
 Z = 2
 convergence_threshold = 1e-4
-calc_exchange = True
-calc_correlation = True
+mixing_alpha = 0.1
 
 # --- GRID --- #
 grid = RadialGrid(r_min=1e-6, r_max=10.0, h=1e-3)
 
 # --- PARAMETERS FOR BISECT-PRELIMINARY TO BISECT --- #
-E_search_range = (-3, 0)
+E_search_range = (-3, -0.01)
 E_rough_step = 0.1
 
 # --- FIRST CALCULATION WITH V_eff=0 --- #
@@ -180,39 +180,41 @@ print(f"Initial single electron eigenvalue: {E_root:.4f}")
 
 # -------------------------------
 # --- SELF-CONSISTENT PART ---#
-# ------------------------------
+# -------------------------------
 u_old = u_ind
 E_old = E_root
-V_eff = np.zeros_like(grid.r)
+V_H_calc = 2 * poisson_integrate(u_old, grid.r)
+V_X_calc = get_V_x(u_old, grid.r)
+V_eff_input = V_H_calc + V_X_calc
+TOTEN_old = get_TOTEN(E_old, u_old, grid.r, V_H_calc, V_X_calc)
 
 print("\n═══ ENTERING SELF CONSISTENT LOOP ═══")
 iteration = 1
 while True:
-    V_hartree_old = poisson_integrate(u_old, grid.r)
-    TOTEN_old = get_TOTEN(E_old, u_old, grid.r, V_hartree_old)
-    V_eff = V_hartree_old
 
-    u_new, E_new = solve_shrodinger(grid, Z, V_eff, E_search_range, E_rough_step)
-    V_hartree_new = poisson_integrate(u_new, grid.r)
-    TOTEN_new = get_TOTEN(E_new, u_new, grid.r, V_hartree_new)
+    u_new, E_new = solve_shrodinger(grid, Z, V_eff_input, E_search_range, E_rough_step)
+    V_H_new = 2 * poisson_integrate(u_new, grid.r)
+    V_X_new = get_V_x(u_new, grid.r)
+    V_eff_output = V_H_new + V_X_new
+
+    TOTEN_new = get_TOTEN(E_new, u_new, grid.r, V_H_new, V_X_new)
 
     E_diff = np.abs(TOTEN_new - TOTEN_old)
-    print(f"Iteration {iteration}: ΔE = {E_diff}")
+    print(f"Iteration {iteration:3d}: ΔE = {E_diff:.6e} | E_tot = {TOTEN_new:.6f}")
 
     if E_diff < convergence_threshold:
         break
 
-    u_old = u_new
-    E_old = E_new
-
+    TOTEN_old = TOTEN_new
+    V_eff_input = mixing_alpha * V_eff_output + (1 - mixing_alpha) * V_eff_input
     iteration += 1
 
 u_sol = u_new
-E_1_sol = E_new
+eigen_sol = E_new
 TOTEN_sol = TOTEN_new
 
 print("\n═══ RESULTS ═══")
-print(f"Single electron eigenvalue E_1: {E_1_sol:.4f}")
+print(f"Single electron eigenvalue E_1: {eigen_sol:.4f}")
 print(f"Total energy TOTEN: {TOTEN_sol:.4f}")
 
 print("\n" + "═" * 87)
