@@ -47,7 +47,7 @@ def append_csv(path, it, E_1, Etot, dE):
 def save_profiles(path, r, **fields):
     path = Path(path)
 
-    names = ["r", "u"]
+    names = ["r"]
     arrays = [r]
 
     # Unpack columns passed as kewyword arg
