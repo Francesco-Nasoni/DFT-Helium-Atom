@@ -8,14 +8,14 @@ from source.io_utils import load_config_yaml, append_csv, save_profiles
 def main():
     print(
     r"""
-    ╔════════════════════════════════════════════════════════════════════════════════════╗
-    ║   ____  _____ _____   _   _      _ _                      _   _                    ║
-    ║  |  _ \|  ___|_   _| | | | | ___| (_)_   _ _ __ ___      / \ | |_ ___  _ __ ___    ║
-    ║  | | | | |_    | |   | |_| |/ _ \ | | | | | '_ ` _ \    / _ \| __/ _ \| '_ ` _ \   ║
-    ║  | |_| |  _|   | |   |  _  |  __/ | | |_| | | | | | |  / ___ \ || (_) | | | | | |  ║
-    ║  |____/|_|     |_|   |_| |_|\___|_|_|\__,_|_| |_| |_| /_/   \_\__\___/|_| |_| |_|  ║
-    ║                                                                                    ║
-    ╚════════════════════════════════════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════════════════════════════════════╗
+║   ____  _____ _____   _   _      _ _                      _   _                    ║
+║  |  _ \|  ___|_   _| | | | | ___| (_)_   _ _ __ ___      / \ | |_ ___  _ __ ___    ║
+║  | | | | |_    | |   | |_| |/ _ \ | | | | | '_ ` _ \    / _ \| __/ _ \| '_ ` _ \   ║
+║  | |_| |  _|   | |   |  _  |  __/ | | |_| | | | | | |  / ___ \ || (_) | | | | | |  ║
+║  |____/|_|     |_|   |_| |_|\___|_|_|\__,_|_| |_| |_| /_/   \_\__\___/|_| |_| |_|  ║
+║                                                                                    ║
+╚════════════════════════════════════════════════════════════════════════════════════╝
     """
     )
 
@@ -52,7 +52,9 @@ def main():
         grid, Z, V_eff_0, E_search_range, E_rough_step
     )
 
-    print(f"Initial single electron eigenvalue: {E_root:.4f}")
+    print("\n═══ INDEPENDENT ELECTRON RESULTS ═══")
+    print(f"Single electron eigenvalue E_1: {E_root:.3f}")
+    print(f"Total energy TOTEN: {2*E_root:.3f}")
 
     # ------------------------------- #
     #  --- SELF-CONSISTENT PART ---
@@ -87,11 +89,11 @@ def main():
         it += 1
 
     save_profiles(out_dir/profiles_save_file_name, grid.r, u=u_new, V_H=V_H_new, V_x=V_X_new, V_c=V_C_new, V_eff=V_eff_output)
-    print("\n═══ RESULTS ═══")
+    print("\n═══ FINAL RESULTS ═══")
     print(f"Single electron eigenvalue E_1: {E_new:.6f}")
     print(f"Total energy TOTEN: {TOTEN_new:.6f}")
-
-    print("\n" + "═" * 87)
+    print(f"\nPotential and final probability density were saved in '{out_dir}' directory")
+    print("═" * 86)
 
 
 if __name__ == "__main__":
