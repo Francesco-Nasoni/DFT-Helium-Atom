@@ -1,3 +1,4 @@
-verlet_test.py
 .vscode
-image.*
+__pycache__
+
+verlet_test.py
