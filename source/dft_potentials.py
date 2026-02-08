@@ -2,6 +2,7 @@ import numpy as np
 from scipy.integrate import simpson
 from source.solver import verlet_integrate_1D
 
+
 def get_V_h(u_r, line_grid):
     h = np.abs(line_grid[1] - line_grid[0])
 
@@ -9,7 +10,8 @@ def get_V_h(u_r, line_grid):
         return -(u_r[idx] ** 2) / r
 
     U_part = verlet_integrate_1D(U_2_poisson, 0, h, line_grid)
-    alpha = (1 - U_part[-1]) / line_grid[-1]
+    qmax = simpson(u_r**2, line_grid)
+    alpha = (qmax - U_part[-1]) / line_grid[-1]
 
     V_hartree = (U_part / line_grid) + alpha
     V_hartree[0] = V_hartree[1]
@@ -32,8 +34,7 @@ def get_V_c(u_r, line_grid):
     C = 0.0020
     D = -0.0116
 
-    n = simpson(u_r**2, line_grid)
-    r_s = (3 / (4 * np.pi * n)) ** (1 / 3)
+    r_s = (3 * line_grid**2 / (2 * u_r**2)) ** (1 / 3)
     mask_rs_low = r_s > 1
 
     sqrt_rs = np.sqrt(r_s)
@@ -60,7 +61,7 @@ def get_V_eff(u_r, r, use_exchange, use_correlation):
     V_eff = np.zeros(r.shape)
     V_X = None
     V_C = None
-    ec=None
+    ec = None
     if use_exchange or use_correlation:
         V_H = 2 * get_V_h(u_r, r)
         if use_exchange:
@@ -73,7 +74,7 @@ def get_V_eff(u_r, r, use_exchange, use_correlation):
     else:
         V_H = get_V_h(u_r, r)
 
-    V_eff  += V_H
+    V_eff += V_H
 
     return V_eff, V_H, V_X, V_C, ec
 

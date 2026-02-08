@@ -22,8 +22,8 @@ Z = 2
 convergence_threshold = 1e-4
 mixing_alpha = 0.1
 max_iterations = 70
-use_exchange = False
-use_correlation = False
+use_exchange = True
+use_correlation = True
 
 # --- GRID --- #
 grid = RadialGrid(r_min=1e-6, r_max=10.0, h=1e-3)
