@@ -92,7 +92,7 @@ def main():
     print("\n═══ FINAL RESULTS ═══")
     print(f"Single electron eigenvalue E_1: {E_new:.6f}")
     print(f"Total energy TOTEN: {TOTEN_new:.6f}")
-    print(f"\nPotential and final probability density were saved in '{out_dir}' directory")
+    print(f"\nPotential and radial probability amplitude were saved in '{out_dir}' directory")
     print("═" * 86)
 
 

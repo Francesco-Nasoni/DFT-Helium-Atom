@@ -1,4 +1,4 @@
 .vscode
 source/__pycache__
-
+visualization
 verlet_test.py
