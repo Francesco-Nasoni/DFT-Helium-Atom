@@ -28,7 +28,7 @@ def get_V_x(u_r, line_grid):
 
 def get_V_c(u_r, line_grid):
 
-    # Coefficienti PZ81
+    # PZ81 coefficients
     gamma = -0.1423
     beta1 = 1.0529
     beta2 = 0.3334

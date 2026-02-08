@@ -1,24 +1,24 @@
-calculation_parameters:
+config:
   grid:
     r_min: 1.0e-12
     r_max: 10.0
-    h: 1.0e-3
+    h: 1.0e-3         #grid step
 
   bisect:
     E_min: -3.0
     E_max: 0 
-    rough_step: 0.1   # preliminary step to find two point with opposite sign 
+    rough_step: 0.1   # preliminary step to find two point with opposite sign for bisect
 
   scf:
     max_iter: 100
     TOTEN_threshold: 1.0e-4
-    mix_alpha: 0.3    # 0<alpha<=1
+    mix_alpha: 0.2    # 0<alpha<=1
 
   model:
     use_exchange: true
     use_correlation: true
 
   output:
-    out_dir: "outputs"
-    #scf_log_csv: "scf_log.csv"
-    #profiles_dat: "profiles_final.dat"
+    out_dir: "outputs"                    # output directory
+    scf_log_csv: "scf_log.csv"            # csv file for scf iteration log
+    profiles_dat: "profiles_final.dat"    # dat file for potentials ad probability aplitude save
