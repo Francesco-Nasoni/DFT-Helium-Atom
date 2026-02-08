@@ -37,8 +37,8 @@ def get_norm_factor(u_r, line_grid):
 
 
 # --- SHRÖDINGER SOLVER ---
-def F(E, V_eff_r, r, u_r):
-    return (-4 / r - 2 * E + 2 * V_eff_r) * u_r
+def F(E, Z, V_eff_r, r, u_r):
+    return 2 * (- Z / r - E + V_eff_r) * u_r
 
 
 def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
@@ -51,7 +51,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
 
     # Look for two points where u(0) chenges sign for the bisect method
     u_0 = verlet_integrate_1D(
-        lambda r, ur, idx: F(E_bounds[0], V_eff_rev[idx], r, ur),
+        lambda r, ur, idx: F(E_bounds[0], Z, V_eff_rev[idx], r, ur),
         u_rmax,
         u_rmax_h,
         grid.r_rev,
@@ -61,7 +61,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     E_bisect_range = None
     for E_test in np.arange(E_bounds[0] + E_rough_step, E_bounds[1], E_rough_step):
         u_i = verlet_integrate_1D(
-            lambda r, ur, idx: F(E_test, V_eff_rev[idx], r, ur),
+            lambda r, ur, idx: F(E_test, Z, V_eff_rev[idx], r, ur),
             u_rmax,
             u_rmax_h,
             grid.r_rev,
@@ -80,7 +80,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     # Proper bisect method
     E_root = bisect(
         lambda e: verlet_integrate_1D(
-            lambda r, ur, idx: F(e, V_eff_rev[idx], r, ur),
+            lambda r, ur, idx: F(e, Z, V_eff_rev[idx], r, ur),
             u_rmax,
             u_rmax_h,
             grid.r_rev,
@@ -93,7 +93,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     # NOTE: np.flip is necessary since we are integrating backwords r_max -> 0
     u_int = np.flip(
         verlet_integrate_1D(
-            lambda r, ur, idx: F(E_root, V_eff_rev[idx], r, ur),
+            lambda r, ur, idx: F(E_root, Z, V_eff_rev[idx], r, ur),
             u_rmax,
             u_rmax_h,
             grid.r_rev,

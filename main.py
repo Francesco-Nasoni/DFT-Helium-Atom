@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from source.solver import RadialGrid, solve_shrodinger, verlet_integrate_1D
+from source.solver import RadialGrid, solve_shrodinger
 from source.dft_potentials import get_V_h, get_V_x, get_V_c, get_TOTEN
 
 print(
