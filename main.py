@@ -22,11 +22,11 @@ Z = 2
 convergence_threshold = 1e-4
 mixing_alpha = 0.1
 max_iterations = 70
-use_exchange = True
-use_correlation = True
+use_exchange = False
+use_correlation = False
 
 # --- GRID --- #
-grid = RadialGrid(r_min=1e-6, r_max=10.0, h=1e-3)
+grid = RadialGrid(r_min=1e-12, r_max=10.0, h=1e-3)
 
 # --- PARAMETERS FOR BISECT-PRELIMINARY TO BISECT --- #
 E_search_range = (-3, -0.01)
@@ -61,7 +61,7 @@ while iteration < max_iterations:
     TOTEN_new = get_TOTEN(E_new, u_new, grid.r, V_H_new, V_X_new, V_C_new, ec_new)
 
     E_diff = np.abs(TOTEN_new - TOTEN_old)
-    print(f"Iteration {iteration:3d}: ΔE = {E_diff:.6e} | E_tot = {TOTEN_new:.6f}")
+    print(f"Iteration {iteration:3d}: ΔE= {E_diff:.6e} | E_1= {E_new:.6f} | E_tot= {TOTEN_new:.6f}")
 
     if E_diff < convergence_threshold:
         break
@@ -72,8 +72,8 @@ while iteration < max_iterations:
 
 
 print("\n═══ RESULTS ═══")
-print(f"Single electron eigenvalue E_1: {E_new:.4f}")
-print(f"Total energy TOTEN: {TOTEN_new:.4f}")
+print(f"Single electron eigenvalue E_1: {E_new:.6f}")
+print(f"Total energy TOTEN: {TOTEN_new:.6f}")
 
 print("\n" + "═" * 87)
 

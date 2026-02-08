@@ -87,7 +87,7 @@ def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
         )[-1],
         E_bisect_range[0],
         E_bisect_range[1],
-        xtol=grid.h,
+        xtol=1e-8,
     )
 
     # NOTE: np.flip is necessary since we are integrating backwords r_max -> 0

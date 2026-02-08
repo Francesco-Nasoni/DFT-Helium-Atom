@@ -7,9 +7,12 @@ def get_V_h(u_r, line_grid):
     h = np.abs(line_grid[1] - line_grid[0])
 
     def U_2_poisson(r, _, idx):
-        return -(u_r[idx] ** 2) / r
+        r_eff = max(r, 1e-12)
+        return -(u_r[idx] ** 2) / r_eff
 
-    U_part = verlet_integrate_1D(U_2_poisson, 0, h, line_grid)
+    # We solve the particural solution by integrating using Verlet and boundary
+    # conditions U(0)=0 and U(h)=0 so that both U and U' are zero in the origin
+    U_part = verlet_integrate_1D(U_2_poisson, 0, 0, line_grid)
     qmax = simpson(u_r**2, line_grid)
     alpha = (qmax - U_part[-1]) / line_grid[-1]
 
