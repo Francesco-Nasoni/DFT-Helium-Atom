@@ -55,6 +55,29 @@ def get_V_c(u_r, line_grid):
     return v_c, ec_r
 
 
+def get_V_eff(u_r, r, use_exchange, use_correlation):
+
+    V_eff = np.zeros(r.shape)
+    V_X = None
+    V_C = None
+    ec=None
+    if use_exchange or use_correlation:
+        V_H = 2 * get_V_h(u_r, r)
+        if use_exchange:
+            V_X = get_V_x(u_r, r)
+            V_eff += V_X
+
+        if use_correlation:
+            V_C, ec = get_V_c(u_r, r)
+            V_eff += V_C
+    else:
+        V_H = get_V_h(u_r, r)
+
+    V_eff  += V_H
+
+    return V_eff, V_H, V_X, V_C, ec
+
+
 def get_TOTEN(E, u_r, line_grid, v_h, v_x=None, v_c=None, ec_c=None):
     toten = 2 * E - simpson(v_h * u_r**2, line_grid)
     if v_x is not None:
