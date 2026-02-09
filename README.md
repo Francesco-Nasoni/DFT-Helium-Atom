@@ -132,7 +132,7 @@ where $f_i$ are occupations.
 The effective potential is decomposed as:
 
 $$
-V_{\mathrm{eff}}(\mathbf{r}) = V_{\mathrm{ext}}(\mathbf{r}) + V_{H}[n](\mathbf{r}) + V_{xc}[n](\mathbf{r}),
+V_{\mathrm{eff}}(\mathbf{r}) = V_{\mathrm{ext}}(\mathbf{r}) + V_{H}[n] (\mathbf{r}) + V_{xc}[n] (\mathbf{r}),
 $$
 
 where:
