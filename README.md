@@ -146,7 +146,7 @@ where:
 The Hartree potential is:
 
 $$
-V_H(\mathbf{r}) = \int \frac{n(\mathbf{r}')}{|\mathbf{r} - \mathbf{r}'|}\,d^3r'.
+V_H(\mathbf{r}) = \int \frac{n(\mathbf{r}')}{|\mathbf{r} - \mathbf{r}'|} \ d^3r'.
 $$
 
 It can also be obtained by solving Poisson’s equation:
@@ -162,13 +162,13 @@ $$
 The exchange-correlation energy is defined by:
 
 $$
-E_{xc}[n] = E[n] - T_s[n] - \int V_\mathrm{ext}(\mathbf{r})n(\mathbf{r})\,d^3r - E_H[n],
+E_{xc}[n] = E[n] - T_s[n] - \int V_\mathrm{ext}(\mathbf{r})n(\mathbf{r}) \ d^3r - E_H[n],
 $$
 
 where $T_s[n]$ is the kinetic energy of the non-interacting KS system and the Hartree energy is:
 
 $$
-E_H[n] = \frac{1}{2}\iint \frac{n(\mathbf{r})n(\mathbf{r}')}{|\mathbf{r}-\mathbf{r}'|}\,d^3r\,d^3r'.
+E_H[n] = \frac{1}{2}\iint \frac{n(\mathbf{r})n(\mathbf{r}')}{|\mathbf{r}-\mathbf{r}'|} \ d^3r \ d^3r'.
 $$
 
 Given an approximation for $E_{xc}[n]$, the KS exchange-correlation potential is obtained by functional derivative:
@@ -221,7 +221,7 @@ $$
 where $\varepsilon_c$ is the correlation energy parameter defined by
 
 $$
-E_c = \int d^3r \, \varepsilon_c [n(\mathbf{r})] (\mathbf{r}),
+E_c = \int d^3r \ \varepsilon_c [n(\mathbf{r})] (\mathbf{r}),
 $$
 
 a commonly used parameterization for $\varepsilon_c$ is:
@@ -266,6 +266,6 @@ Once the KS equations are solved for each electron, the total energy of the syst
 For the Helium atom, for which $\sum_i\varepsilon_i=2\varepsilon$, the energy of the system is given by
 
 $$
-E = 2\varepsilon - \int dr\  V_H(r)\,u^2(r) - \frac{1}{2}\int dr \  u^2(r) \  V_x(r) +\int dr \  2u^2(r)(\varepsilon_c(r)-V_c(r))
+E = 2\varepsilon - \int dr\  V_H(r) \ u^2(r) - \frac{1}{2}\int dr \  u^2(r) \  V_x(r) +\int dr \  2u^2(r)(\varepsilon_c(r)-V_c(r))
 $$
 
