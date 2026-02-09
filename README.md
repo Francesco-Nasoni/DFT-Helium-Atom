@@ -219,26 +219,34 @@ V_c(r_s) = \left(1-\frac{r_s}{3}\frac{d}{dr_s}\right)\varepsilon_c(r_s).
 $$
 
 where $\varepsilon_c$ is the correlation energy parameter defined by
+
 $$
 E_c = \int d^3r\, \varepsilon_c[n(\mathbf{r})](\mathbf{r}),
 $$
+
 a commonly used parameterization for $\varepsilon_c$ is:
 
 - For $r_s \ge 1$:
+
 $$
 \varepsilon_c = \frac{\gamma}{1+\beta_1\sqrt{r_s}+\beta_2 r_s},
 $$
+
 which leads to:
+
 $$
 V_c(r_s)= \varepsilon_c
 \frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s}.
 $$
 
 - For $r_s < 1$:
+  
 $$
 \varepsilon_c = A\ln r_s + B + C r_s \ln r_s + D r_s,
 $$
+
 which leads to:
+
 $$
 V_c(r_s)=A\ln r_s + B - \frac{A}{3} + \frac{2}{3}C r_s \ln r_s + \frac{(2D-C)}{3}r_s.
 $$
@@ -248,6 +256,7 @@ where $\beta_1$, $\beta_2$, $\gamma$, A, B, C, D are tabulated parameters.
 ### Total Energy calculation
 
 The LDA $V_x(r)$ and $V_c(r)$ enter the self-consistent Kohn–Sham effective potential
+
 $$
 V_\mathrm{eff}(r)=V_\mathrm{ext}(r)+V_H(r)+V_x(r)+V_c(r).
 $$
@@ -255,6 +264,7 @@ $$
 Once the KS equations are solved for each electron, the total energy of the system is obtained by summing up the single electron eigenvalues $\varepsilon_i$ and removing double counted interactions.
 
 For the Helium atom, for which $\sum_i\varepsilon_i=2\varepsilon$, the energy of the system is given by
+
 $$
 E = 2\varepsilon - \int dr\, V_H(r)\,u^2(r) - \frac{1}{2}\int dr\, u^2(r)\,V_x(r) +\int dr\, 2u^2(r)(\varepsilon_c(r)-V_c(r))
 $$
