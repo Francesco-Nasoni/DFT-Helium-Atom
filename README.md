@@ -266,6 +266,6 @@ Once the KS equations are solved for each electron, the total energy of the syst
 For the Helium atom, for which $\sum_i\varepsilon_i=2\varepsilon$, the energy of the system is given by
 
 $$
-E = 2\varepsilon - \int dr\, V_H(r)\,u^2(r) - \frac{1}{2}\int dr \, u^2(r) \, V_x(r) +\int dr \, 2u^2(r)(\varepsilon_c(r)-V_c(r))
+E = 2\varepsilon - \int dr\  V_H(r)\,u^2(r) - \frac{1}{2}\int dr \  u^2(r) \  V_x(r) +\int dr \  2u^2(r)(\varepsilon_c(r)-V_c(r))
 $$
 
