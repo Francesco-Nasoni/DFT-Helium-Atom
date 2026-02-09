@@ -195,7 +195,8 @@ $$
 
 Within LDA, the exchange potential is taken from the UEG result:
 
-$$ V_x(r) = -\left(\frac{3}{\pi}\right)^{1/3} n^{1/3}(r). $$
+$$
+V_x(r) = -\left(\frac{3}{\pi}\right)^{1/3} n^{1/3}(r).$$
 
 For the helium atom, the density entering the Hartree and XC terms is the **full density** (two electrons in the 1s orbital). Using the radial representation in terms of the reduced radial function $u(r)$, this can be rewritten explicitly as a function of $u(r)$ and $r$:
 
