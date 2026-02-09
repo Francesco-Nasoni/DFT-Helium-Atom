@@ -221,7 +221,7 @@ $$
 where $\varepsilon_c$ is the correlation energy parameter defined by
 
 $$
-E_c = \int d^3r\, \varepsilon_c[n(\mathbf{r})](\mathbf{r}),
+E_c = \int d^3r\, \varepsilon_c [n(\mathbf{r})](\mathbf{r}),
 $$
 
 a commonly used parameterization for $\varepsilon_c$ is:
