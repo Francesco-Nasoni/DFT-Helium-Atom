@@ -181,13 +181,11 @@ $$
 
 The exact form of the exchange-correlation potential $V_{xc}(\mathbf{r})$ is unknown, it must be expressed using models and approximations. In general, for a non-homogeneous system, it is a function of the density and its gradients
 
-$$
-V_{xc}[n](\mathbf{r})=V_{xc}(n,\nabla n,\nabla^2 n,\ldots)
-$$
+$$V_{xc}(\mathbf{r}) = V_{xc}(n, \nabla n, \nabla^2 n, \ldots)$$
 
 The Local Density Approximation (LDA) assumes that, at each point in space $\mathbf{r}$, the XC potential is well approximated by that of a uniform electron gas (UEG)evaluated at the local density $n(\mathbf{r})$.
 
-The XC potential can be separated into  exchange and correlation contributions:
+The XC potential can be separated into exchange and correlation contributions:
 
 $$
 V_{xc}(r) = V_x(r) + V_c(r).
