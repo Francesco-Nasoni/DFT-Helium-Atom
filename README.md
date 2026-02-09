@@ -2,6 +2,8 @@
 
 The goal of this project is to implement a **Self-Consistent Field (SCF)** solver to determine the ground state properties of the Helium atom using **Density Functional Theory (DFT)** by employing different approximation levels for the effective potential (Hartree only, Hartree + exchange, Hartree + exchange + correlation)
 
+---
+
 ## Table Of Contents
 
 1. [Dependencies](#dependencies)  
@@ -9,6 +11,9 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 3. [Configuration](#configuration)
 4. [Outputs](#outputs)
 5. [Background Theory](#background-theory)
+6. [Implementation](#implementation)
+
+---
 
 ## Dependencies
 
@@ -23,6 +28,8 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 
 - pandas
 - matplotlib
+
+---
 
 ## Usage
 
@@ -42,13 +49,15 @@ The program performs an initial “independent-electron” solve and then enters
 
 ### 3) (Optional) Quick plots
 
-After a successful run, generate plots with the convenience script:
+After a successful run, you can visualize the results using any preferred tool (MATLAB, Julia, gnuplot, custom scripts, etc.). For convenience, a Python plotting script is included:
 
 ```bash
 python visualization/plot_results.py
 ```
 
-This reads the output files and produces figures (SCF convergence, radial density/amplitude, potential profiles). You can also analyze the generated files with any other tool (MATLAB, Julia, gnuplot, your own scripts, etc.).
+This script reads the output files and generates figures showing SCF convergence, radial density/amplitude, and potential profiles.
+
+---
 
 ## Configuration
 
@@ -84,6 +93,8 @@ The parameters are:
 - `profiles_dat`: radial profiles filename
 
 Implementation note: if `r_min` is set to `0`, it is internally replaced by a small positive value to avoid divisions by zero at the origin.
+
+---
 
 ## Output
 
@@ -269,3 +280,6 @@ $$
 E = 2\varepsilon - \int dr\  V_H(r) \ u^2(r) - \frac{1}{2}\int dr \  u^2(r) \  V_x(r) +\int dr \  2u^2(r)(\varepsilon_c(r)-V_c(r))
 $$
 
+---
+
+## Implementation
