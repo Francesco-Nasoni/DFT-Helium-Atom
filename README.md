@@ -132,7 +132,7 @@ where $f_i$ are occupations.
 The effective potential is decomposed as:
 
 $$
-V_\mathrm{eff}(\mathbf{r}) = V_\mathrm{ext}(\mathbf{r}) + V_H[n](\mathbf{r}) + V_{xc}[n](\mathbf{r}),
+V_{\mathrm{eff}}(\mathbf{r}) = V_{\mathrm{ext}}(\mathbf{r}) + V_{H}[n](\mathbf{r}) + V_{xc}[n](\mathbf{r}),
 $$
 
 where:
@@ -183,7 +183,7 @@ The exact form of the exchange-correlation potential $V_{xc}(\mathbf{r})$ is unk
 
 $$V_{xc}(\mathbf{r}) = V_{xc}(n, \nabla n, \nabla^2 n, \ldots)$$
 
-The Local Density Approximation (LDA) assumes that, at each point in space $\mathbf{r}$, the XC potential is well approximated by that of a uniform electron gas (UEG)evaluated at the local density $n(\mathbf{r})$.
+The Local Density Approximation (LDA) assumes that, at each point in space $\mathbf{r}$, the XC potential is well approximated by that of a uniform electron gas (UEG) evaluated at the local density $n(\mathbf{r})$.
 
 The XC potential can be separated into exchange and correlation contributions:
 
