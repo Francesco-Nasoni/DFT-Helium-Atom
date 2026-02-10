@@ -346,21 +346,21 @@ By changing `use_exchange` and `use_correlation` boolean values in the `config.y
 
 - Hartree-only mode:
 
-  $$
-  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
-  $$
+$$
+V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
+$$
 
 - Hartree + exchange mode:
 
-  $$
-  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
-  $$
+$$
+V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
+$$
 
 - Hartree + exchange + correlation mode:
 
-  $$
-  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
-  $$
+$$
+V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
+$$
 
 ---
 
