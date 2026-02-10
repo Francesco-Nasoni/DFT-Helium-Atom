@@ -320,7 +320,7 @@ $$
 n(r) = \frac{u(r)^2}{2\pi r^2},
 $$
 
-thus integrals of $f(r)n(r)$ becomes
+thus integrals of the kind $f(r)n(r)$ becomes
 
 $$
 \int f(r) n(r) d^3r = \int_{0}^{\infty} f(r) n(r) 4\pi r^2 dr = \int_{0}^{\infty} f(r) \frac{u^2}{2\pi r^2} 4\pi r^2 dr = 2 \int_{0}^{\infty} f(r) u(r)^2 dr.
