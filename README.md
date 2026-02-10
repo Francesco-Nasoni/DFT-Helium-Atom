@@ -11,7 +11,8 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 3. [Configuration](#configuration)
 4. [Outputs](#outputs)
 5. [Background Theory](#background-theory)
-6. [Implementation](#implementation)
+6. [Available Models](#available-models)
+7. [Implementation](#implementation)
 
 ---
 
@@ -42,7 +43,7 @@ Edit `config.yaml` to choose grid parameters, SCF thresholds/mixing, and whether
 From the repository root:
 
 ```bash
-python main.py
+python DFT_helium.py
 ```
 
 The program performs an initial “independent-electron” solve and then enters a SCF loop, writing outputs into the configured output directory.
@@ -120,11 +121,16 @@ A whitespace-separated table of final radial profiles, it includes:
 - `V_c` (correlation, if enabled)
 - `V_eff` (final effective potential)
 
-Note: the names are set in the confing.yaml file. By default, they are `scf_log.csv` `profiles_final.dat`.
+Note: tall the results are given in Atomic Units.
 
 ---
 
 ## Background Theory
+
+```
+NOTE:
+throughout the rest of the document the Atomic Unit will be employed.
+```
 
 When a system is studied using DFT, one introduces a fictitious system of non-interacting electrons that reproduces the exact interacting density. This system is governed by the Kohn–Sham (KS) equation which reads:
 
@@ -220,13 +226,13 @@ $$
 \phi_{nlm}(r,\theta,\phi) = \frac{u_{nl}(r)}{r}Y_{lm}(\theta,\phi),
 $$
 
-the KS equation reduces to a radial equation for $u_{nl}(r)$. For $l=0$ (1s orbital) and $n=0$ (ground state), the term that depends on angular momentum vanishes and one solves:
+the KS equation reduces to a radial equation for $u_{nl}(r)$. For $l=0$ (1s orbital) and $n=1$ (ground state), the term that depends on angular momentum vanishes and one solves:
 
 $$
 \left[-\frac{1}{2}\frac{d^2}{dr^2} + V_\mathrm{eff}(r)\right]u(r) = \varepsilon u(r)
 $$
 
-where $u(r) \equiv u_{00}(r)$.
+where $u(r) \equiv u_{10}(r)$.
 
 Helium has a doubly occupied 1s orbital (spin up + spin down), thus the  density is:
 
@@ -334,4 +340,129 @@ $$
 
 ---
 
+## Available Models
+
+By changing `use_exchange` and `use_correlation` boolean value in the `config.yaml`, it is possible to choose which potentials include in the evaluation of $V_\mathrm{eff}(r)$, switching between:
+
+- Hartree-only mode:
+  $$
+  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
+  $$
+
+- Hartree + exchange mode:
+  $$
+  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
+  $$
+
+- Hartree + exchange + correlation mode:
+  $$
+  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
+  $$
+
+---
+
 ## Implementation
+
+### Self-Consistent loop
+The core part of the project is the self-consistent loop, whose logic is defined in a while loop in the `DFT_helium.py`. It follows a standard SCF iteration:
+
+1. start from an initial guess $V_{\text{eff}}^{(0)}$
+2. solve Schrödinger $\rightarrow (u^{(k)}, E^{(k)})$
+3. build a new potential $V_{\text{eff}}^{\text{out}}[u^{(k)}]$
+4. apply **linear mixing** to stabilize convergence:
+
+   $$V_{\text{eff}}^{(k+1)} = \alpha V_{\text{eff}}^{\text{out}} + (1-\alpha)V_{\text{eff}}^{(k)}$$
+
+   where $\alpha$ is set in `config.yaml`
+5. stop when the total energy change $|\Delta E_{\text{tot}}|$ is below the tolerance.
+
+The code looks like
+
+```python
+while it < max_iterations:
+
+    u_new, E_new = solve_shrodinger(..., V_eff_input)
+
+    # ... logic to update TOTEN_new ...
+
+    E_diff = np.abs(TOTEN_new - TOTEN_old)
+
+    if E_diff < convergence_threshold:
+        break
+
+    V_eff_input = mixing_alpha * V_eff_output + (1 - mixing_alpha) * V_eff_input
+
+    it += 1
+```
+
+#### Bootstrap
+To bootstrap the SCF loop the non interacting electron density is calculated from the fully non interacting electron problem:
+
+$$
+\left[-\frac{1}{2}\frac{d^2}{dr^2} - \frac{Z}{r} \right]u^{(0)}(r) = \varepsilon u^{(0)}(r) \quad \rightarrow \quad n^{(0)}(r)=\frac{u^{(0)}(r)^2}{2\pi r^2}
+$$
+
+and $n^{(0)}(r)$ is used to calcualte $V_H^{(0)}$ ,$V_x^{(0)}$ and $V_c^{(0)}$.
+
+### Shrödinger Equation Integration
+The Shrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combine the bisection method through `bisect` from `scipy.optimize`, with the Verlet algorithm for integration which is implemented by the function `verlet_integrate_1D` in `source/solver.py`.
+
+#### The verlet algorithm
+The Verlet algorithm allows the integration of differential equations in the the form:
+
+$$
+\ddot{\mathbf{x}}(t) = F(\mathbf{x}(t))
+$$
+
+i.e. where the first derivative does not appear.\
+If the time gets discretized with step $\Delta t$, the Verlet algorithm retrieves the value of $\mathbf{x}(t+\Delta t)$ as
+
+$$
+\mathbf{x}(t + \Delta t) = 2\mathbf{x}(t) - \mathbf{x}(t - \Delta t) + F(\mathbf{x}(t)) \Delta t^2 + \mathcal{O}(\Delta t^4),
+$$
+
+once $\mathbf{x}(0)$ and $\mathbf{x}(\Delta t)$ are given the algorithm retrieves the completely integrated solution $\mathbf{x}(t)$.
+
+The Shrödinger equation that has to be solved for the Helium atom with the DFT theory seen in [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation), can be rewritten as
+
+$$
+\ddot{u}(r)=(2V_{\mathrm{eff}}(r)-2\varepsilon)u(r)
+$$
+
+therefore this equation can be solved through the Verlet algorithm in which $\mathbf{x} \rightarrow u$, $t \rightarrow r$ $\Delta t \rightarrow \Delta r \equiv h$ and
+
+$$
+F(u(r))= 2 (V_{\mathrm{eff}}(r)-\varepsilon) \ u(r).
+$$
+
+The Verlet algorithm is bootstrapped by using the hydrogenic solution at high distance
+
+$$
+\begin{cases}
+    u(r_\mathrm{max})= r_\mathrm{max} \ e^{-Z r_\mathrm{max}}\\
+    u(r_\mathrm{max} - h) = (r_\mathrm{max} -h) \ e^{-Z r_\mathrm{max}+Zh}.
+\end{cases}
+$$
+
+This approach leverages the asymptotic behavior of the system where electron interactions become negligible, allowing accurate initialization of the iterative algorithm from physically meaningful starting conditions.
+
+Since the initial points are defined at $r_\mathrm{max}$ and $r_\mathrm{max} - h$, the Verlet algorithm integrates **backwards** from $r_\mathrm{max}$ to $r = 0$.
+
+```
+NOTE: the code always solves the Shrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
+```
+
+#### The bisection method
+
+If the eigenvalue $\varepsilon$ is known, the solution $u(r)$ is obtained by a single application of Verlet integration. However, since $\varepsilon$ is initially unknown, the integration must be performed iteratively to find the value for which the boundary condition $u(0)=0$ is satisfied. This procedure is managed by the `solve_shrodinger` function, which utilizes `scipy.optimize.bisect` to identify the root of the wavefunction at the origin as a function of $\varepsilon$.
+
+To function correctly, the bisection method requires an interval $[a, b]$ where the function $u(0; \varepsilon)$ changes sign. Consequently, the algorithm first performs a coarse scan within the range $[E_{\min}, E_{\max}]$ using a fixed step `rough_step` to locate this sign change. The parameters $E_{\min}$, $E_{\max}$, and `rough_step` are defined in the `config.yaml` file.
+
+`bisect` is called with a tolerance of $10^{-8}$ (A.u.).
+
+#### Summary of `solve_shrodinger` workflow
+
+1. **Initialization and Coarse Scan**: The function performs a preliminary sweep across the range ($E_{\min}$, $E_{\max}$) with steps of `rough_step` to identify an interval $[a, b]$ where the wavefunction value at the origin, $u(0; \varepsilon)$, changes sign.
+2. **Root-Finding Loop**: It invokes `scipy.optimize.bisect` inside the range $[a, b]$ to precisely identify the eigenvalue $\varepsilon$ that satisfies the boundary condition $u(0) = 0$ within a tolerance of $10^{-8}$ A.u.
+3. **Backward Integration**: During each iteration of the bisection, `verlet_integrate_1D` is called. It initializes the wavefunction at $r_{\max}$ using the asymptotic hydrogenic solution and integrates **backwards** to the origin.
+4. **Normalization and Density**: Once the optimal $\varepsilon$ is found, the resulting radial solution $u(r)$ is **normalized** to ensure $\int_0^{\infty} |u(r)|^2 dr = 1$ (it utilizes `scipy.integrate.simpson`).
