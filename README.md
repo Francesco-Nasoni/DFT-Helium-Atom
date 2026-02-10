@@ -342,19 +342,22 @@ $$
 
 ## Available Models
 
-By changing `use_exchange` and `use_correlation` boolean value in the `config.yaml`, it is possible to choose which potentials include in the evaluation of $V_\mathrm{eff}(r)$, switching between:
+By changing `use_exchange` and `use_correlation` boolean values in the `config.yaml`, it is possible to choose which potentials include in the evaluation of $V_\mathrm{eff}(r)$, switching between:
 
 - Hartree-only mode:
+
   $$
   V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
   $$
 
 - Hartree + exchange mode:
+
   $$
   V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
   $$
 
 - Hartree + exchange + correlation mode:
+
   $$
   V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
   $$
@@ -402,7 +405,7 @@ $$
 \left[-\frac{1}{2}\frac{d^2}{dr^2} - \frac{Z}{r} \right]u^{(0)}(r) = \varepsilon u^{(0)}(r) \quad \rightarrow \quad n^{(0)}(r)=\frac{u^{(0)}(r)^2}{2\pi r^2}
 $$
 
-and $n^{(0)}(r)$ is used to calcualte $V_H^{(0)}$ ,$V_x^{(0)}$ and $V_c^{(0)}$.
+and $n^{(0)}(r)$ is used to calcualte $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
 
 ### Shrödinger Equation Integration
 The Shrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combine the bisection method through `bisect` from `scipy.optimize`, with the Verlet algorithm for integration which is implemented by the function `verlet_integrate_1D` in `source/solver.py`.
@@ -448,9 +451,7 @@ This approach leverages the asymptotic behavior of the system where electron int
 
 Since the initial points are defined at $r_\mathrm{max}$ and $r_\mathrm{max} - h$, the Verlet algorithm integrates **backwards** from $r_\mathrm{max}$ to $r = 0$.
 
-```
 NOTE: the code always solves the Shrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
-```
 
 #### The bisection method
 
