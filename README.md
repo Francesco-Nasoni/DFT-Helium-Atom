@@ -45,7 +45,7 @@ From the repository root:
 python main.py
 ```
 
-The program performs an initial “independent-electron” solve and then enters an SCF loop, writing outputs into the configured output directory.
+The program performs an initial “independent-electron” solve and then enters a SCF loop, writing outputs into the configured output directory.
 
 ### 3) (Optional) Quick plots
 
@@ -111,7 +111,7 @@ A CSV log of the SCF iterations, including quantities such as:
 
 ### 2) `profiles_final.dat`
 
-A whitespace-separated table of final radial profiles, typically including columns such as:
+A whitespace-separated table of final radial profiles, it includes:
 
 - `r` (grid)
 - `u` (radial amplitude)
@@ -148,7 +148,7 @@ $$
 
 where:
 
-- $V_\mathrm{ext}$ is the nuclear attraction (for helium: $V_\mathrm{ext}(r) = -Z/r$),
+- $V_\mathrm{ext}$ is the nuclear attraction ($V_\mathrm{ext}(r) = -Z/r$),
 - $V_H$ is the Hartree (classical Coulomb) potential,
 - $V_{xc}$ is the exchange-correlation potential (all many-body effects beyond Hartree).
 
@@ -188,6 +188,52 @@ $$
 V_{xc}(\mathbf{r}) = \frac{\delta E_{xc}[n]}{\delta n(\mathbf{r})}.
 $$
 
+For convenience, it can be separated into exchange and correlation contributions:
+
+$$
+V_{xc}(r) = V_x(r) + V_c(r).
+$$
+
+### Self-consistency
+
+Because $V_\mathrm{eff}$ depends on $n(r)$, and $n(r)$ depends on the KS orbitals, the KS equations must be solved self-consistently:
+
+1. guess $n(r)$ or $V_\mathrm{eff}(r)$,
+2. solve KS for orbitals and $\varepsilon_i$,
+3. build new density $n_\mathrm{new}(r)$,
+4. update $V_\mathrm{eff}$ from $n_\mathrm{new}$,
+5. repeat until convergence.
+
+Mixing is often used to stabilize convergence:
+
+$$
+V_\mathrm{in}^{(i+1)} = \alpha V_\mathrm{out}^{(i)} + (1-\alpha)V_\mathrm{in}^{(i)}.
+$$
+
+where $\alpha$ is called *mixing parameter* and $0 \le\alpha \le 1$
+
+### Spherical symmetry and radial equation
+
+For atoms, the external potential and ground-state density are spherically symmetric. Using separation of variables:
+
+$$
+\phi_{nlm}(r,\theta,\phi) = \frac{u_{nl}(r)}{r}Y_{lm}(\theta,\phi),
+$$
+
+the KS equation reduces to a radial equation for $u_{nl}(r)$. For $l=0$ (1s orbital) and $n=0$ (ground state), the term that depends on angular momentum vanishes and one solves:
+
+$$
+\left[-\frac{1}{2}\frac{d^2}{dr^2} + V_\mathrm{eff}(r)\right]u(r) = \varepsilon u(r)
+$$
+
+where $u(r) \equiv u_{00}(r)$.
+
+Helium has a doubly occupied 1s orbital (spin up + spin down), thus the  density is:
+
+$$
+n(r) = 2|\phi_{1s}(r)|^2 = \left | \frac{u(r)}{r}Y_{00}(\theta,\phi) \right |^2 = 2\frac{|u(r)|^2}{4\pi r^2}.
+$$
+
 ### Local Density Approximation (LDA) for exchange and correlation
 
 The exact form of the exchange-correlation potential $V_{xc}(\mathbf{r})$ is unknown, it must be expressed using models and approximations. In general, for a non-homogeneous system, it is a function of the density and its gradients
@@ -195,12 +241,6 @@ The exact form of the exchange-correlation potential $V_{xc}(\mathbf{r})$ is unk
 $$V_{xc}(\mathbf{r}) = V_{xc}(n, \nabla n, \nabla^2 n, \ldots)$$
 
 The Local Density Approximation (LDA) assumes that, at each point in space $\mathbf{r}$, the XC potential is well approximated by that of a uniform electron gas (UEG) evaluated at the local density $n(\mathbf{r})$.
-
-The XC potential can be separated into exchange and correlation contributions:
-
-$$
-V_{xc}(r) = V_x(r) + V_c(r).
-$$
 
 ### LDA exchange
 
@@ -229,7 +269,7 @@ $$
 V_c(r_s) = \left(1-\frac{r_s}{3}\frac{d}{dr_s}\right)\varepsilon_c(r_s).
 $$
 
-where $\varepsilon_c$ is the correlation energy parameter defined by
+where $\varepsilon_c$ is defined by
 
 $$
 E_c = \int d^3r \ \varepsilon_c [n(\mathbf{r})] (\mathbf{r}),
@@ -247,7 +287,7 @@ which leads to:
 
 $$
 V_c(r_s)= \varepsilon_c
-\frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s}.
+\frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s} \quad \mathrm{for} \quad r_s \ge 1.
 $$
 
 - For $r_s < 1$:
@@ -259,7 +299,7 @@ $$
 which leads to:
 
 $$
-V_c(r_s)=A\ln r_s + B - \frac{A}{3} + \frac{2}{3}C r_s \ln r_s + \frac{(2D-C)}{3}r_s.
+V_c(r_s)=A\ln r_s + B - \frac{A}{3} + \frac{2}{3}C r_s \ln r_s + \frac{(2D-C)}{3}r_s \quad \mathrm{for} \quad r_s < 1.
 $$
 
 where $\beta_1$, $\beta_2$, $\gamma$, A, B, C, D are tabulated parameters.
@@ -272,12 +312,24 @@ $$
 V_\mathrm{eff}(r)=V_\mathrm{ext}(r)+V_H(r)+V_x(r)+V_c(r).
 $$
 
-Once the KS equations are solved for each electron, the total energy of the system is obtained by summing up the single electron eigenvalues $\varepsilon_i$ and removing double counted interactions.
+Once the KS equations are solved, the total energy of the system is obtained by summing the single-particle eigenvalues $\varepsilon_i$ and subtracting the double-counted interaction terms:
 
-For the Helium atom, for which $\sum_i\varepsilon_i=2\varepsilon$, the energy of the system is given by
+As described in [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation), for the Helium atom in its groundstate:
 
 $$
-E = 2\varepsilon - \int dr\  V_H(r) \ u^2(r) - \frac{1}{2}\int dr \  u^2(r) \  V_x(r) +\int dr \  2u^2(r)(\varepsilon_c(r)-V_c(r))
+n(r) = \frac{u(r)^2}{2\pi r^2},
+$$
+
+thus integrals of $f(r)n(r)$ becomes
+
+$$
+\int f(r) n(r) d^3r = \int_{0}^{\infty} f(r) n(r) 4\pi r^2 dr = \int_{0}^{\infty} f(r) \frac{u^2}{2\pi r^2} 4\pi r^2 dr = 2 \int_{0}^{\infty} f(r) u(r)^2 dr.
+$$
+
+Considering $\sum_i\varepsilon_i=2\varepsilon$, the total energy of the system is given by
+
+$$
+E_{\mathrm{tot}} = 2\varepsilon - \int dr\  V_H(r) \ u^2(r) - \frac{1}{2}\int dr \  u^2(r) \  V_x(r) + 2 \int dr \  u^2(r)(\varepsilon_c(r)-V_c(r))
 $$
 
 ---
