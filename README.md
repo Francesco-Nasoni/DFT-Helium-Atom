@@ -13,6 +13,7 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 5. [Background Theory](#background-theory)
 6. [Available Models](#available-models)
 7. [Implementation](#implementation)
+8. [Results](#results)
 
 ---
 
@@ -127,10 +128,8 @@ Note: tall the results are given in Atomic Units.
 
 ## Background Theory
 
-```
-NOTE:
-throughout the rest of the document the Atomic Unit will be employed.
-```
+>NOTE:\
+>throughout the rest of the document the Atomic Unit will be employed.
 
 When a system is studied using DFT, one introduces a fictitious system of non-interacting electrons that reproduces the exact interacting density. This system is governed by the Kohn–Sham (KS) equation which reads:
 
@@ -248,7 +247,7 @@ $$V_{xc}(\mathbf{r}) = V_{xc}(n, \nabla n, \nabla^2 n, \ldots)$$
 
 The Local Density Approximation (LDA) assumes that, at each point in space $\mathbf{r}$, the XC potential is well approximated by that of a uniform electron gas (UEG) evaluated at the local density $n(\mathbf{r})$.
 
-### LDA exchange
+#### LDA exchange
 
 Within LDA, the exchange potential is taken from the UEG result:
 
@@ -261,7 +260,7 @@ $$
 V_x(r) = -\left[\frac{3u^2(r)}{2\pi^2 r^2}\right]^{1/3}.
 $$
 
-### LDA correlation (Ceperley–Alder / Perdew–Zunger parameterization)
+#### LDA correlation (Ceperley–Alder / Perdew–Zunger parameterization)
 
 Correlation is included through a standard UEG-based parameterization derived from Quantum Monte Carlo data (Ceperley–Alder) and fit by Perdew–Zunger. Define the Wigner–Seitz radius $r_s$ by:
 
@@ -320,7 +319,7 @@ $$
 
 Once the KS equations are solved, the total energy of the system is obtained by summing the single-particle eigenvalues $\varepsilon_i$ and subtracting the double-counted interaction terms:
 
-As described in [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation), for the Helium atom in its groundstate:
+As described in [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation), for the Helium atom in its ground state:
 
 $$
 n(r) = \frac{u(r)^2}{2\pi r^2},
@@ -405,7 +404,7 @@ $$
 \left[-\frac{1}{2}\frac{d^2}{dr^2} - \frac{Z}{r} \right]u^{(0)}(r) = \varepsilon u^{(0)}(r) \quad \rightarrow \quad n^{(0)}(r)=\frac{u^{(0)}(r)^2}{2\pi r^2}
 $$
 
-and $n^{(0)}(r)$ is used to calcualte $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
+and $n^{(0)}(r)$ is used to calculate $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
 
 ### Shrödinger Equation Integration
 The Shrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combine the bisection method through `bisect` from `scipy.optimize`, with the Verlet algorithm for integration which is implemented by the function `verlet_integrate_1D` in `source/solver.py`.
@@ -451,7 +450,8 @@ This approach leverages the asymptotic behavior of the system where electron int
 
 Since the initial points are defined at $r_\mathrm{max}$ and $r_\mathrm{max} - h$, the Verlet algorithm integrates **backwards** from $r_\mathrm{max}$ to $r = 0$.
 
-NOTE: the code always solves the Shrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
+>NOTE:\
+>the code always solves the Shrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
 
 #### The bisection method
 
@@ -466,4 +466,99 @@ To function correctly, the bisection method requires an interval $[a, b]$ where 
 1. **Initialization and Coarse Scan**: The function performs a preliminary sweep across the range ($E_{\min}$, $E_{\max}$) with steps of `rough_step` to identify an interval $[a, b]$ where the wavefunction value at the origin, $u(0; \varepsilon)$, changes sign.
 2. **Root-Finding Loop**: It invokes `scipy.optimize.bisect` inside the range $[a, b]$ to precisely identify the eigenvalue $\varepsilon$ that satisfies the boundary condition $u(0) = 0$ within a tolerance of $10^{-8}$ A.u.
 3. **Backward Integration**: During each iteration of the bisection, `verlet_integrate_1D` is called. It initializes the wavefunction at $r_{\max}$ using the asymptotic hydrogenic solution and integrates **backwards** to the origin.
-4. **Normalization and Density**: Once the optimal $\varepsilon$ is found, the resulting radial solution $u(r)$ is **normalized** to ensure $\int_0^{\infty} |u(r)|^2 dr = 1$ (it utilizes `scipy.integrate.simpson`).
+4. **Normalization and Density**: Once the optimal $\varepsilon$ is found, the resulting radial solution $u(r)$ is **normalized** to ensure $\int_0^{\infty} |u(r)|^2 dr = 1$ (using `scipy.integrate.simpson`).
+
+### Hartree potential via Poisson equation
+
+Another noteworthy procedure is the calculation of the Hartree potential $V_H$ through the resolution of the Poisson equation:
+
+$$
+\nabla^2 V_H(\mathbf{r}) = -4\pi n(\mathbf{r}).
+$$
+
+This is implemented by the `get_V_h` function in `source/dft_potentials.py`.
+
+Using the Laplacian in sphericla coordinates:
+$$
+\nabla ^2 V_H ​= \frac{1}{r}\frac{d^2}{dr^2}​(rV_H​).
+$$
+
+By defining the auxiliary function $U(r) = rV_H(r)$ and substituting the radial density of a single electron $n(r) = \frac{u^2(r)}{4\pi r^2}$, the Poisson equation reduces to a one-dimensional second-order differential equation:
+
+$$
+\frac{d^2U(r)}{dr^2}=-\frac{u^2(r)}{r}.
+$$
+
+The solution $U(r)$ is subject to two boundary conditions:
+* **At the origin**: $U(0) = 0$.
+* **Asymptotically**: $U(r \rightarrow \infty) = N$, where $N$ is the total number of electrons. This ensures that $V_H$ behaves as a Coulomb potential $Q/r$ at large distances.
+
+#### Numerical strategy
+Rather than employing a shooting method (like bisection), the algorithm exploits the linearity of the differential equation. The general solution is expressed as the sum of a particular solution and a homogeneous solution:
+$$
+U_\mathrm{sol} = U_\mathrm{homo} + U_\mathrm{part}.
+$$
+
+Therefore the Poisson equation can be solved through the following procedure:
+
+1. **Particular Solution**: Compute $U_{\text{part}}(r)$ using the Verlet algorithm. The integration is bootstrapped from the origin with the initial conditions $U(0) = 0$ and $U(h) = 0$.
+2. **Homogeneous Solution**: The corresponding homogeneous equation $U'' = 0$ has the general solution $U_{\text{hom}}(r) = \alpha r$. This solution naturally satisfies $U(0) = 0$. The slope $\alpha$ is determined by enforcing the boundary condition at $r_{\max}$:
+
+    $$
+    U(r_{\max}) = U_\mathrm{part}(r_\mathrm{max})+\alpha r_\mathrm{max} = q_{\max}
+    $$
+
+    with
+
+    $$
+    q_{\max}=\int_0^{r_{\max}} u(r)^2\,dr \approx 1
+    $$
+
+    yielding:
+
+   $$\alpha = \frac{1-U_{\text{part}}(r_{\max})}{r_{\max}}$$
+
+3. **Reconstruction**: The final Hartree potential is reconstructed as:
+
+   $$
+   V_H(r) = \frac{U_{\text{part}}(r)}{r} + \alpha.
+   $$
+
+## Treatment of the Hartree Potential
+
+A key implementation detail concerns the definition of the Hartree potential $V_H$, which varies depending on the chosen level of theory (`Hartree only` vs `DFT`). This distinction is necessary to correctly handle **Self-Interaction**.
+
+The function `get_V_h(u_r)` in `source/dft_potentials.py` solves the radial Poisson equation for a probability density normalized to 1 ($\int |u|^2 dr = 1$). Consequently, it returns the potential generated by a single electron.
+
+#### 1. Hartree Limit (Independent Particles)
+
+When `use_exchange = False` and `use_correlation = False`, the code simulates the classical Hartree approximation (Hartree theory).
+In this model, electron $i$ moves in the mean field generated by the $N-1$ *other* electrons. For the Helium ($N=2$), Electron 1 experiences only the potential of Electron 2.
+
+* **Source Density:** $n(r) = |u(r)|^2$
+* **Effective Potential:** $V_{eff} = V_{ext} + V_H[|u(r)|^2]$
+* **Implementation:**
+
+  ```python
+  V_H = get_V_h(u_r, r)  # Potential of 1 electron
+  ```
+
+In this scheme, self-interaction is excluded by construction.
+
+#### 2. DFT Kohn-Sham with LDA
+
+When Exchange or Correlation are active, the code switches to the Kohn-Sham DFT formalism. Here, the Hartree potential is defined as a functional of the **total electronic density** $n(\mathbf{r})$ thus $n(r) = 2|u(r)|^2$.
+
+* **Source Density:** $n(r) = 2|u(r)|^2$
+* **Effective Potential:** $V_{eff} = V_{ext} + V_H[2|u(r)|^2] + V_{xc}[n]$
+* **Implementation:**
+  
+  ```python
+  V_H = 2 * get_V_h(u_r, r)  # Potential of total density
+  ```
+
+In this scenario, the Hartree term includes the Self-Interaction. The role of the exchange potential $V_x​$ is to cancel out this spurious contribution.
+
+---
+
+## Results

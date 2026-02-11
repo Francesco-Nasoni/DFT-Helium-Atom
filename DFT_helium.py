@@ -43,7 +43,14 @@ def main():
     scf_log_file_name = cfg["output"]["scf_log_csv"]
     profiles_save_file_name = cfg["output"]["profiles_dat"]
 
+    # Delete existing log and profiles files if they exist
+    (out_dir / scf_log_file_name).unlink(missing_ok=True)
+    (out_dir / profiles_save_file_name).unlink(missing_ok=True)
+    
+    # Create output_dir if it does't exist
     out_dir.mkdir(exist_ok=True)
+
+    # Define the grid
     grid = RadialGrid(r_min, r_max, h)
 
     # --- FIRST CALCULATION (V_eff=0) --- #
