@@ -479,6 +479,7 @@ $$
 This is implemented by the `get_V_h` function in `source/dft_potentials.py`.
 
 Using the Laplacian in sphericla coordinates:
+
 $$
 \nabla ^2 V_H ​= \frac{1}{r}\frac{d^2}{dr^2}​(rV_H​).
 $$
