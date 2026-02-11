@@ -496,9 +496,7 @@ The solution $U(r)$ is subject to two boundary conditions:
 #### Numerical strategy
 Rather than employing a shooting method (like bisection), the algorithm exploits the linearity of the differential equation. The general solution is expressed as the sum of a particular solution and a homogeneous solution:
 
-$$
-U_\mathrm{sol} = U_\mathrm{homo} + U_\mathrm{part}.
-$$
+$$U_\mathrm{sol} = U_\mathrm{homo} + U_\mathrm{part}.$$
 
 Therefore the Poisson equation can be solved through the following procedure:
 
@@ -517,9 +515,7 @@ Therefore the Poisson equation can be solved through the following procedure:
 
 3. **Reconstruction**: The final Hartree potential is reconstructed as:
 
-   $$
-   V_H(r) = \frac{U_{\text{part}}(r)}{r} + \alpha.
-   $$
+   $$V_H(r) = \frac{U_{\text{part}}(r)}{r} + \alpha.$$
 
 ## Treatment of the Hartree Potential
 
