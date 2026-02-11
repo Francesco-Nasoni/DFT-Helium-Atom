@@ -495,6 +495,7 @@ The solution $U(r)$ is subject to two boundary conditions:
 
 #### Numerical strategy
 Rather than employing a shooting method (like bisection), the algorithm exploits the linearity of the differential equation. The general solution is expressed as the sum of a particular solution and a homogeneous solution:
+
 $$
 U_\mathrm{sol} = U_\mathrm{homo} + U_\mathrm{part}.
 $$
@@ -504,15 +505,11 @@ Therefore the Poisson equation can be solved through the following procedure:
 1. **Particular Solution**: Compute $U_{\text{part}}(r)$ using the Verlet algorithm. The integration is bootstrapped from the origin with the initial conditions $U(0) = 0$ and $U(h) = 0$.
 2. **Homogeneous Solution**: The corresponding homogeneous equation $U'' = 0$ has the general solution $U_{\text{hom}}(r) = \alpha r$. This solution naturally satisfies $U(0) = 0$. The slope $\alpha$ is determined by enforcing the boundary condition at $r_{\max}$:
 
-    $$
-    U(r_{\max}) = U_\mathrm{part}(r_\mathrm{max})+\alpha r_\mathrm{max} = q_{\max}
-    $$
+   $$U(r_{\max}) = U_\mathrm{part}(r_\mathrm{max})+\alpha r_\mathrm{max} = q_{\max}$$
 
     with
 
-    $$
-    q_{\max}=\int_0^{r_{\max}} u(r)^2\,dr \approx 1
-    $$
+   $$q_{\max} = \int_0^{r_{\max}} u(r)^2 \ dr \approx 1$$
 
     yielding:
 
