@@ -518,7 +518,7 @@ Therefore the Poisson equation can be solved through the following procedure:
 
    $$V_H(r) = \frac{U_{\text{part}}(r)}{r} + \alpha.$$
 
-## Treatment of the Hartree Potential
+### Treatment of the Hartree Potential
 
 A key implementation detail concerns the definition of the Hartree potential $V_H$, which varies depending on the chosen level of theory (`Hartree only` vs `DFT`). This distinction is necessary to correctly handle **Self-Interaction**.
 
