@@ -23,6 +23,7 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
   - [Hartree potential via Poisson equation](#hartree-potential-via-poisson-equation)
   - [Treatment of the Hartree Potential](#treatment-of-the-hartree-potential)
 - [Results](#results)
+  - [Total energy and Ionization Energy](#total-energy-and-ionization-energy)
 
 ---
 
@@ -68,10 +69,37 @@ The program performs an initial “independent-electron” solve and then enters
 After a successful run, you can visualize the results using any preferred tool (MATLAB, Julia, gnuplot, custom scripts, etc.). For convenience, a Python plotting script is included:
 
 ```bash
-python visualization/plot_results.py
+python visualization/plot_results.py <input_dir> [plot_label] [output_dir]
 ```
 
+- `input_dir`: Directory path containing the input data files to be processed
+- `plot_label`: optional, label or identifier used for naming and titling the generated plots
+- `output_dir`: optional, directory path where the output files and plots will be saved
+
 This script reads the output files and generates figures showing SCF convergence, radial density/amplitude, and potential profiles.
+
+<!-- omit from toc -->
+### 4) (Optional) Automated Execution
+
+The repository includes the script `run_dft_suit.sh`, which automates the sequential execution of the three possible configurations:
+
+- Hartree
+- Hartree + Exchange
+- Hartree + Exchange + Correlation
+
+To run the script type
+
+```bash
+> bash ./run_dft_suit.sh [path_to_python.exe]
+```
+
+where `[path_to_python.exe]` is the absolute path to the Python executable. If not provided, it defaults to `python3`
+
+The script executes the following stages for each case:
+
+1. **Initialization** – Sets up the computational environment and updates parameters.
+2. **DFT Calculation** – Performs the core density functional theory computations.
+3. **Saving and Plotting** – Results are saved and plotted inside organized folders within `outputs`.
 
 ---
 
@@ -588,3 +616,22 @@ In this scenario, the Hartree term includes the Self-Interaction. The role of th
 ---
 
 ## Results
+
+The results presented below were obtained by executing the `run_dft_suit.sh` script using the default parameters specified in the `config.yaml` file included with the program.
+
+### Total energy and Ionization Energy
+
+The following table summarizes the computed ground state energy of the Helium atom, and the single electron eigenvalues across the three different levels of theory adopted:
+
+| Model | Ground State Energy (Hartree) | Single Electron Eigenvalue (Hartree) |
+|-------|-------------------------------|--------------------------------------|
+| Hydrogenic | -4.000 | -2.000 |
+| Hartree | -2.8615 | -0.9179 |
+| Hartree + Exchange | -2.7234 | -0.5169 |
+| Hartree + Exchange + Correlation | -2.8340 | -0.5701 |
+| Experimental | -2.9037 | -0.903 |
+
+All values are expressed in atomic units (Hartree). For the experimental single electron eigenvalue, the listed value is the negative of the first ionization energy $(-I_1)$.
+
+![Energy convergence across different DFT models](visualization/comparison_radial_density.pdf)
+

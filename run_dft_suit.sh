@@ -5,8 +5,8 @@
 # ==============================================================================
 
 # Usage: ./run_dft_suit.sh [python_executable]
-# If no argument is provided, it defaults to 'python'.
-PYTHON_EXE="${1:-python}"
+# If no argument is provided, it defaults to 'python3'.
+PYTHON_EXE="${1:-python3}"
 
 CONFIG_FILE="config.yaml"
 BACKUP_FILE="config.yaml.bak"
