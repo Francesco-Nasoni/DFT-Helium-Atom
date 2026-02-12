@@ -1,3 +1,8 @@
 .vscode
 source/__pycache__
+
 verlet_test.py
+run.log
+
+visualization/comparison_radial_density.pdf
+visualization/plot_together.py

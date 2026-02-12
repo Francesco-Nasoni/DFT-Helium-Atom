@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 from pathlib import Path
 
 
 def plot_scf_convergence(
-    csv_path, label_size, line_width, marker_size, figsize, save_path=None
+    csv_path, label_size, line_width, marker_size, figsize, save_path=None, name_spec=""
 ):
     df = pd.read_csv(csv_path)
 
@@ -45,13 +46,16 @@ def plot_scf_convergence(
     )
     ax2.tick_params(axis="y", labelcolor=color, labelsize=label_size * 0.8)
 
-    plt.title("Self-Consistent Energy Convergence", fontsize=label_size * 1.2)
+    title = "Self-Consistent Energy Convergence"
+    if name_spec:
+        title += f" - {name_spec}"
+    plt.title(title, fontsize=label_size * 1.2)
     fig.tight_layout()
     if save_path:
         plt.savefig(save_path, format="pdf", bbox_inches="tight")
 
 
-def plot_radial_density(df, label_size, line_width, figsize, save_path=None):
+def plot_radial_density(df, label_size, line_width, figsize, save_path=None, name_spec=""):
     fig, ax = plt.subplots(figsize=figsize)
 
     r_plot = df["r"][1:]
@@ -76,7 +80,10 @@ def plot_radial_density(df, label_size, line_width, figsize, save_path=None):
 
     ax.set_xlabel("r (Bohr)", fontsize=label_size)
     ax.set_ylabel(r"Radial Profile", fontsize=label_size)
-    ax.set_title("Radial Probability Density and Amplitude", fontsize=label_size * 1.2)
+    title = "Radial Probability Density and Amplitude"
+    if name_spec:
+        title += f" - {name_spec}"
+    ax.set_title(title, fontsize=label_size * 1.2)
     ax.grid(True, alpha=0.3)
     ax.set_xlim([-0.1, 5])
     ax.legend(fontsize=label_size * 0.8)
@@ -87,15 +94,18 @@ def plot_radial_density(df, label_size, line_width, figsize, save_path=None):
         plt.savefig(save_path, format="pdf", bbox_inches="tight")
 
 
-def plot_potentials(df, label_size, line_width, figsize, save_path=None):
+def plot_potentials(df, label_size, line_width, figsize, save_path=None, name_spec=""):
     fig, ax = plt.subplots(figsize=figsize)
 
     r_plot = df["r"][1:]
 
     ax.plot(r_plot, df["V_eff"][1:], label=r"$V_{eff}$", lw=line_width)
     ax.plot(r_plot, df["V_H"][1:], label=r"$V_{H}$", linestyle="--", lw=line_width)
-    ax.plot(r_plot, df["V_x"][1:], label=r"$V_{x}$", linestyle=":", lw=line_width)
-    ax.plot(r_plot, df["V_c"][1:], label=r"$V_{c}$", linestyle="-.", lw=line_width)
+    
+    if "V_x" in df.columns:
+        ax.plot(r_plot, df["V_x"][1:], label=r"$V_{x}$", linestyle=":", lw=line_width)
+    if "V_c" in df.columns:
+        ax.plot(r_plot, df["V_c"][1:], label=r"$V_{c}$", linestyle="-.", lw=line_width)
 
     # Also plot the bare nuclear potential
     Z = 2 
@@ -104,7 +114,10 @@ def plot_potentials(df, label_size, line_width, figsize, save_path=None):
 
     ax.set_xlabel("r (Bohr)", fontsize=label_size)
     ax.set_ylabel("Potential (Ha)", fontsize=label_size)
-    ax.set_title("Effective Potential Components", fontsize=label_size * 1.2)
+    title = "Effective Potential Components"
+    if name_spec:
+        title += f" - {name_spec}"
+    ax.set_title(title, fontsize=label_size * 1.2)
     ax.set_ylim([-4, 3.5])
     ax.set_xlim([-0.1, 5])
     ax.grid(True, alpha=0.3)
@@ -124,20 +137,32 @@ if __name__ == "__main__":
     LABEL_SIZE = 14
     LINE_WIDTH = 2
     MARKER_SIZE = 6.0
-    SAVE_PDF = True
     # ------------------------------
 
     script_dir = Path(__file__).parent
     base_dir = script_dir.parent
-    outputs_dir = base_dir / "outputs"
+    
+    # Get output directory from command line argument or use default
+    if len(sys.argv) > 1:
+        outputs_dir = base_dir / sys.argv[1]
+    else:
+        outputs_dir = base_dir / "outputs"
+    
+    # Get name specification from second argument if provided
+    name_spec = sys.argv[2] if len(sys.argv) > 2 else ""
+    
+    # Get save directory from third argument, default to script_dir
+    save_dir = Path(sys.argv[3]) if len(sys.argv) > 3 else script_dir
 
     scf_log = outputs_dir / "scf_log.csv"
     profiles_dat = outputs_dir / "profiles_final.dat"
 
     if scf_log.exists():
-        save_path = script_dir / "scf_convergence.pdf" if SAVE_PDF else None
+        filename = f"{name_spec}_scf_convergence.pdf" if name_spec else "scf_convergence.pdf"
+        save_path = save_dir / filename
+
         plot_scf_convergence(
-            scf_log, LABEL_SIZE, LINE_WIDTH, MARKER_SIZE, FIGSIZE_1, save_path
+            scf_log, LABEL_SIZE, LINE_WIDTH, MARKER_SIZE, FIGSIZE_1, save_path, name_spec
         )
     else:
         print(f"File not found: {scf_log}")
@@ -148,12 +173,12 @@ if __name__ == "__main__":
         data = np.loadtxt(profiles_dat)
         df = pd.DataFrame(data, columns=header)
 
-        save_path_density = script_dir / "radial_density.pdf" if SAVE_PDF else None
-        save_path_potentials = script_dir / "potentials.pdf" if SAVE_PDF else None
+        filename_density = f"{name_spec}_radial_density.pdf" if name_spec else "radial_density.pdf"
+        filename_potentials = f"{name_spec}_potentials.pdf" if name_spec else "potentials.pdf"
+        save_path_density = save_dir / filename_density
+        save_path_potentials = save_dir / filename_potentials
 
-        plot_radial_density(df, LABEL_SIZE, LINE_WIDTH, FIGSIZE_2, save_path_density)
-        plot_potentials(df, LABEL_SIZE, LINE_WIDTH, FIGSIZE_2, save_path_potentials)
+        plot_radial_density(df, LABEL_SIZE, LINE_WIDTH, FIGSIZE_2, save_path_density, name_spec)
+        plot_potentials(df, LABEL_SIZE, LINE_WIDTH, FIGSIZE_2, save_path_potentials, name_spec)
     else:
         print(f"File not found: {profiles_dat}")
-
-    plt.show()
