@@ -52,7 +52,7 @@ def plot_scf_convergence(
     plt.title(title, fontsize=label_size * 1.2)
     fig.tight_layout()
     if save_path:
-        plt.savefig(save_path, format="pdf", bbox_inches="tight")
+        plt.savefig(save_path, dpi=300, format="png", bbox_inches="tight")
 
 
 def plot_radial_density(df, label_size, line_width, figsize, save_path=None, name_spec=""):
@@ -91,7 +91,7 @@ def plot_radial_density(df, label_size, line_width, figsize, save_path=None, nam
 
     fig.tight_layout()
     if save_path:
-        plt.savefig(save_path, format="pdf", bbox_inches="tight")
+        plt.savefig(save_path, dpi=300, format="png", bbox_inches="tight")
 
 
 def plot_potentials(df, label_size, line_width, figsize, save_path=None, name_spec=""):
@@ -126,7 +126,7 @@ def plot_potentials(df, label_size, line_width, figsize, save_path=None, name_sp
 
     fig.tight_layout()
     if save_path:
-        plt.savefig(save_path, format="pdf", bbox_inches="tight")
+        plt.savefig(save_path, dpi=300, format="png", bbox_inches="tight")
 
 
 if __name__ == "__main__":
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     profiles_dat = outputs_dir / "profiles_final.dat"
 
     if scf_log.exists():
-        filename = f"{name_spec}_scf_convergence.pdf" if name_spec else "scf_convergence.pdf"
+        filename = f"{name_spec}_scf_convergence.png" if name_spec else "scf_convergence.png"
         save_path = save_dir / filename
 
         plot_scf_convergence(
@@ -173,8 +173,8 @@ if __name__ == "__main__":
         data = np.loadtxt(profiles_dat)
         df = pd.DataFrame(data, columns=header)
 
-        filename_density = f"{name_spec}_radial_density.pdf" if name_spec else "radial_density.pdf"
-        filename_potentials = f"{name_spec}_potentials.pdf" if name_spec else "potentials.pdf"
+        filename_density = f"{name_spec}_radial_density.png" if name_spec else "radial_density.png"
+        filename_potentials = f"{name_spec}_potentials.png" if name_spec else "potentials.png"
         save_path_density = save_dir / filename_density
         save_path_potentials = save_dir / filename_potentials
 

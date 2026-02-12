@@ -24,6 +24,7 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
   - [Treatment of the Hartree Potential](#treatment-of-the-hartree-potential)
 - [Results](#results)
   - [Total energy and Ionization Energy](#total-energy-and-ionization-energy)
+  - [Charge distribution](#charge-distribution)
 
 ---
 
@@ -633,5 +634,6 @@ The following table summarizes the computed ground state energy of the Helium at
 
 All values are expressed in atomic units (Hartree). For the experimental single electron eigenvalue, the listed value is the negative of the first ionization energy $(-I_1)$.
 
-![Energy convergence across different DFT models](visualization/comparison_radial_density.pdf)
+### Charge distribution
+![Energy convergence across different DFT models](visualization/comparison_radial_density.png)
 
