@@ -1,24 +1,34 @@
-# Density Functional Theory for Helium Atom
+# Density Functional Theory for Helium Atom <!-- omit from toc -->
 
 The goal of this project is to implement a **Self-Consistent Field (SCF)** solver to determine the ground state properties of the Helium atom using **Density Functional Theory (DFT)** by employing different approximation levels for the effective potential (Hartree only, Hartree + exchange, Hartree + exchange + correlation)
 
 ---
-
+<!-- omit from toc -->
 ## Table Of Contents
 
-1. [Dependencies](#dependencies)  
-2. [Usage](#usage)  
-3. [Configuration](#configuration)
-4. [Outputs](#outputs)
-5. [Background Theory](#background-theory)
-6. [Available Models](#available-models)
-7. [Implementation](#implementation)
-8. [Results](#results)
+- [Dependencies](#dependencies)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Output](#output)
+- [Background Theory](#background-theory)
+  - [DFT Kohn-Sham equation](#dft-kohn-sham-equation)
+  - [Self-consistency](#self-consistency)
+  - [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation)
+  - [Local Density Approximation (LDA) for exchange and correlation](#local-density-approximation-lda-for-exchange-and-correlation)
+  - [Total Energy Calculation](#total-energy-calculation)
+- [Available Models](#available-models)
+- [Implementation](#implementation)
+  - [Self-Consistent loop](#self-consistent-loop)
+  - [Shrödinger Equation Integration](#shrödinger-equation-integration)
+  - [Hartree potential via Poisson equation](#hartree-potential-via-poisson-equation)
+  - [Treatment of the Hartree Potential](#treatment-of-the-hartree-potential)
+- [Results](#results)
 
 ---
 
 ## Dependencies
 
+<!-- omit from toc -->
 ### Core (required)
 
 - Python 3.x
@@ -26,6 +36,7 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 - scipy
 - pyyaml
 
+<!-- omit from toc -->
 ### Optional (only for the provided plotting script)
 
 - pandas
@@ -35,10 +46,12 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 
 ## Usage
 
+<!-- omit from toc -->
 ### 1) Configure parameters
 
 Edit `config.yaml` to choose grid parameters, SCF thresholds/mixing, and whether to include exchange/correlation.
 
+<!-- omit from toc -->
 ### 2) Run the solver
 
 From the repository root:
@@ -49,6 +62,7 @@ python DFT_helium.py
 
 The program performs an initial “independent-electron” solve and then enters a SCF loop, writing outputs into the configured output directory.
 
+<!-- omit from toc -->
 ### 3) (Optional) Quick plots
 
 After a successful run, you can visualize the results using any preferred tool (MATLAB, Julia, gnuplot, custom scripts, etc.). For convenience, a Python plotting script is included:
@@ -67,27 +81,32 @@ All runtime parameters are controlled via `config.yaml`.
 
 The parameters are:
 
+<!-- omit from toc -->
 ### Grid
 
 - `r_min`, `r_max`: radial domain
 - `h`: grid step
 
+<!-- omit from toc -->
 ### Eigenvalue search
 
 - `E_min`, `E_max`: energy search interval
 - `rough_step`: rough scan step to locate a sign change before bisection
 
+<!-- omit from toc -->
 ### SCF
 
 - `max_iter`: maximum iterations for the self consistent cycle
 - `TOTEN_threshold`: convergence threshold based on `|ΔE_total|`
 - `mix_alpha`: linear mixing parameter for the effective potential
 
+<!-- omit from toc -->
 ### Model toggles
 
 - `use_exchange`: enable LDA exchange potential
 - `use_correlation`: enable LDA correlation potential (using Ceperley-Alder parameterization)
 
+<!-- omit from toc -->
 ### Outputs
 
 - `out_dir`: output directory
@@ -102,6 +121,7 @@ Implementation note: if `r_min` is set to `0`, it is internally replaced by a sm
 
 Two main files are produced under `out_dir` (default `outputs/`):
 
+<!-- omit from toc -->
 ### 1) `scf_log.csv`
 
 A CSV log of the SCF iterations, including quantities such as:
@@ -111,6 +131,7 @@ A CSV log of the SCF iterations, including quantities such as:
 - `E_tot` (total energy)
 - `dE` (difference from previous iteration)
 
+<!-- omit from toc -->
 ### 2) `profiles_final.dat`
 
 A whitespace-separated table of final radial profiles, it includes:
@@ -129,7 +150,9 @@ Note: tall the results are given in Atomic Units.
 ## Background Theory
 
 >NOTE:\
->throughout the rest of the document the Atomic Unit will be employed.
+>throughout the rest of the document Atomic Units will be employed.
+
+### DFT Kohn-Sham equation
 
 When a system is studied using DFT, one introduces a fictitious system of non-interacting electrons that reproduces the exact interacting density. This system is governed by the Kohn–Sham (KS) equation which reads:
 
@@ -157,7 +180,8 @@ where:
 - $V_H$ is the Hartree (classical Coulomb) potential,
 - $V_{xc}$ is the exchange-correlation potential (all many-body effects beyond Hartree).
 
-### Hartree potential
+<!-- omit from toc -->
+#### Hartree potential
 
 The Hartree potential is:
 
@@ -171,9 +195,8 @@ $$
 \nabla^2 V_H(\mathbf{r}) = -4\pi n(\mathbf{r})
 $$
 
-<!-- with boundary condition $V_H(r\to\infty)\to 0$ (for finite systems). -->
-
-### Exchange-correlation
+<!-- omit from toc -->
+#### Exchange-correlation
 
 The exchange-correlation energy is defined by:
 
@@ -247,6 +270,7 @@ $$V_{xc}(\mathbf{r}) = V_{xc}(n, \nabla n, \nabla^2 n, \ldots)$$
 
 The Local Density Approximation (LDA) assumes that, at each point in space $\mathbf{r}$, the XC potential is well approximated by that of a uniform electron gas (UEG) evaluated at the local density $n(\mathbf{r})$.
 
+<!-- omit from toc -->
 #### LDA exchange
 
 Within LDA, the exchange potential is taken from the UEG result:
@@ -260,6 +284,7 @@ $$
 V_x(r) = -\left[\frac{3u^2(r)}{2\pi^2 r^2}\right]^{1/3}.
 $$
 
+<!-- omit from toc -->
 #### LDA correlation (Ceperley–Alder / Perdew–Zunger parameterization)
 
 Correlation is included through a standard UEG-based parameterization derived from Quantum Monte Carlo data (Ceperley–Alder) and fit by Perdew–Zunger. Define the Wigner–Seitz radius $r_s$ by:
@@ -309,7 +334,7 @@ $$
 
 where $\beta_1$, $\beta_2$, $\gamma$, A, B, C, D are tabulated parameters.
 
-### Total Energy calculation
+### Total Energy Calculation
 
 The LDA $V_x(r)$ and $V_c(r)$ enter the self-consistent Kohn–Sham effective potential
 
@@ -397,6 +422,7 @@ while it < max_iterations:
     it += 1
 ```
 
+<!-- omit from toc -->
 #### Bootstrap
 To bootstrap the SCF loop the non interacting electron density is calculated from the fully non interacting electron problem:
 
@@ -409,6 +435,7 @@ and $n^{(0)}(r)$ is used to calculate $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
 ### Shrödinger Equation Integration
 The Shrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combine the bisection method through `bisect` from `scipy.optimize`, with the Verlet algorithm for integration which is implemented by the function `verlet_integrate_1D` in `source/solver.py`.
 
+<!-- omit from toc -->
 #### The verlet algorithm
 The Verlet algorithm allows the integration of differential equations in the the form:
 
@@ -453,6 +480,7 @@ Since the initial points are defined at $r_\mathrm{max}$ and $r_\mathrm{max} - h
 >NOTE:\
 >the code always solves the Shrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
 
+<!-- omit from toc -->
 #### The bisection method
 
 If the eigenvalue $\varepsilon$ is known, the solution $u(r)$ is obtained by a single application of Verlet integration. However, since $\varepsilon$ is initially unknown, the integration must be performed iteratively to find the value for which the boundary condition $u(0)=0$ is satisfied. This procedure is managed by the `solve_shrodinger` function, which utilizes `scipy.optimize.bisect` to identify the root of the wavefunction at the origin as a function of $\varepsilon$.
@@ -461,6 +489,7 @@ To function correctly, the bisection method requires an interval $[a, b]$ where 
 
 `bisect` is called with a tolerance of $10^{-8}$ (A.u.).
 
+<!-- omit from toc -->
 #### Summary of `solve_shrodinger` workflow
 
 1. **Initialization and Coarse Scan**: The function performs a preliminary sweep across the range ($E_{\min}$, $E_{\max}$) with steps of `rough_step` to identify an interval $[a, b]$ where the wavefunction value at the origin, $u(0; \varepsilon)$, changes sign.
@@ -494,6 +523,7 @@ The solution $U(r)$ is subject to two boundary conditions:
 * **At the origin**: $U(0) = 0$.
 * **Asymptotically**: $U(r \rightarrow \infty) = N$, where $N$ is the total number of electrons. This ensures that $V_H$ behaves as a Coulomb potential $Q/r$ at large distances.
 
+<!-- omit from toc -->
 #### Numerical strategy
 Rather than employing a shooting method (like bisection), the algorithm exploits the linearity of the differential equation. The general solution is expressed as the sum of a particular solution and a homogeneous solution:
 
@@ -524,6 +554,7 @@ A key implementation detail concerns the definition of the Hartree potential $V_
 
 The function `get_V_h(u_r)` in `source/dft_potentials.py` solves the radial Poisson equation for a probability density normalized to 1 ($\int |u|^2 dr = 1$). Consequently, it returns the potential generated by a single electron.
 
+<!-- omit from toc -->
 #### 1. Hartree Limit (Independent Particles)
 
 When `use_exchange = False` and `use_correlation = False`, the code simulates the classical Hartree approximation (Hartree theory).
@@ -539,6 +570,7 @@ In this model, electron $i$ moves in the mean field generated by the $N-1$ *othe
 
 In this scheme, self-interaction is excluded by construction.
 
+<!-- omit from toc -->
 #### 2. DFT Kohn-Sham with LDA
 
 When Exchange or Correlation are active, the code switches to the Kohn-Sham DFT formalism. Here, the Hartree potential is defined as a functional of the **total electronic density** $n(\mathbf{r})$ thus $n(r) = 2|u(r)|^2$.
