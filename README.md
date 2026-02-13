@@ -19,12 +19,16 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 - [Available Models](#available-models)
 - [Implementation](#implementation)
   - [Self-Consistent loop](#self-consistent-loop)
+    - [Convergence example](#convergence-example)
   - [Shrödinger Equation Integration](#shrödinger-equation-integration)
   - [Hartree potential via Poisson equation](#hartree-potential-via-poisson-equation)
   - [Treatment of the Hartree Potential](#treatment-of-the-hartree-potential)
 - [Results](#results)
   - [Total energy and Ionization Energy](#total-energy-and-ionization-energy)
-  - [Charge distribution](#charge-distribution)
+  - [Charge Distribution](#charge-distribution)
+  - [Potential Landscape](#potential-landscape)
+  - [Discussion](#discussion)
+- [Conclusions](#conclusions)
 
 ---
 
@@ -399,21 +403,24 @@ By changing `use_exchange` and `use_correlation` boolean values in the `config.y
 
 - Hartree-only mode:
 
-$$
-V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
-$$
+  $$
+  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
+  $$
+
+  >Note:
+  >In this case the used potential is actually half of the full Hartree potential ($\frac{1}{2}V_\mathrm{H}$), meaning that it is calculated from the electronic density of a single electron. This is a way to forcibly remove the self-interaction.
 
 - Hartree + exchange mode:
 
-$$
-V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
-$$
+  $$
+  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
+  $$
 
 - Hartree + exchange + correlation mode:
 
-$$
-V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
-$$
+  $$
+  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
+  $$
 
 ---
 
@@ -460,6 +467,14 @@ $$
 $$
 
 and $n^{(0)}(r)$ is used to calculate $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
+
+#### Convergence example
+
+The plot below shows a representative self-consistent convergence run for the Hartree + Exchange + Correlation case. The blue curve reports the total energy (left y-axis), while the red curve shows the iteration-to-iteration change $\Delta E$ (right y-axis, logarithmic scale).
+
+![Self consistent energy convergence](visualization/image.png)
+
+The total energy quickly approaches a stable plateau, at the same time, the iteration-to-iteration change $\Delta E$ drops by several orders of magnitude, confirming that the SCF cycle has reached convergence.
 
 ### Shrödinger Equation Integration
 The Shrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combine the bisection method through `bisect` from `scipy.optimize`, with the Verlet algorithm for integration which is implemented by the function `verlet_integrate_1D` in `source/solver.py`.
@@ -536,7 +551,7 @@ $$
 
 This is implemented by the `get_V_h` function in `source/dft_potentials.py`.
 
-Using the Laplacian in sphericla coordinates:
+Using the Laplacian in spherical coordinates:
 
 $$
 \nabla ^2 V_H ​= \frac{1}{r}\frac{d^2}{dr^2}​(rV_H​).
@@ -634,6 +649,42 @@ The following table summarizes the computed ground state energy of the Helium at
 
 All values are expressed in atomic units (Hartree). For the experimental single electron eigenvalue, the listed value is the negative of the first ionization energy $(-I_1)$.
 
-### Charge distribution
+### Charge Distribution
+
+The figure below displays the electronic probability density $|u(r)|^2$ in the three different approximation levels, together with the solution for the hydrogenic model ($V_\text{eff}=V_\text{nuc}$). Note that in this figure $V_\mathrm{eff}$ excludes the nuclear potential that is plotted aside.
+
 ![Energy convergence across different DFT models](visualization/comparison_radial_density.png)
 
+### Potential Landscape
+
+The figure below breaks down the components of the total effective potential ($V_\text{eff}$) for the fully correlated model.
+
+![Effective potential components](visualization/Hartree_Exchange_Correlation_potentials.png)
+
+This visualization highlights the competition between the attractive nuclear potential ($-Z/r$) and the repulsive Hartree screening ($V_H$), as well as the relative magnitudes of the Exchange ($V_x$) and Correlation ($V_c$) corrections.
+
+### Discussion
+From the density distribution plot it is clear that the introduction of the electron-electron introduction "inflate" the atomic density by shifting the probability density away from the nucleus.
+
+- In the **hydrogenic model** electrons occupies $1s$ orbital as if the other did not exist, feeling the nuclear attraction without any screening. For the density, this results in the highest peak located closer to the nucleus (high density close to the nucleus). The obtained energy of the system (**-4.00 a.u.**) diverges significantly from the experimental value of **-2.9037 a.u.**
+
+- In the **Hartree model**, the system get "destabilized" and the energy increase to **-2.8615 a.u.**, closer to the experimental value. The Hartree potential introduces electron-electron repulsion, this forces the orbital to expand, shifting the electron density peak outward and reducing its maximum height.
+
+- When switching to a standard KS-DFT setup, using **full Hartree potential plus the Exchange correction**, the total energy increases to **-2.7234 a.u.**, and the density further expand outward.This behavior is not indicative of an error, indeed the Hartree-only model uses half of the Hartree potential as an *ad hoc* modification to remove self-interaction, which leads to a fortuitous lowering of the energy through error cancellation.\
+In contrast, the DFT approach uses the full Hartree term and adds an explicit exchange potential, making the resulting density more physically motivated and more transferable, and therefore the density distribution is more trustworthy than the one obtained from the half-Hartree construction.
+
+- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of repulsion of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a-u.**. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
+
+---
+
+## Conclusions
+
+A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations clearly illustrate the competition between nuclear attraction and electronic repulsion, and how reshapes the effective potential and the orbital.
+
+  - **Accuracy**: The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.l).
+
+  - **Physical Insight**: The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion, and the stabilizing role of Exchange and Correlation, which partially counteracts this expansion.
+
+  - **Limitations**: The remaining discrepancy between the calculated total energy and the experimental reference is attributable to well-known limitations of LDA
+
+Overall, this project offers a clear and compact implementation of a self-consistent Kohn–Sham solver, making it easy to inspect how different approximations (Hartree, exchange, correlation) modify the effective potential, the density, and the total energy.
