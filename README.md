@@ -19,7 +19,6 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 - [Available Models](#available-models)
 - [Implementation](#implementation)
   - [Self-Consistent loop](#self-consistent-loop)
-    - [Convergence example](#convergence-example)
   - [Shrödinger Equation Integration](#shrödinger-equation-integration)
   - [Hartree potential via Poisson equation](#hartree-potential-via-poisson-equation)
   - [Treatment of the Hartree Potential](#treatment-of-the-hartree-potential)
@@ -468,6 +467,7 @@ $$
 
 and $n^{(0)}(r)$ is used to calculate $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
 
+<!-- omit from toc -->
 #### Convergence example
 
 The plot below shows a representative self-consistent convergence run for the Hartree + Exchange + Correlation case. The blue curve reports the total energy (left y-axis), while the red curve shows the iteration-to-iteration change $\Delta E$ (right y-axis, logarithmic scale).
