@@ -397,9 +397,7 @@ By changing the booleans `use_exchange` and `use_correlation` in `config.yaml`, 
 
 - **Hartree-only**:
   
-  $$
-  V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)
-  $$
+  $$V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r)$$
 
   Note:\
   In this case the Hartree term is computed from the **single-electron density** to remove self-interaction by construction (see [Self-interaction handling](#self-interaction-handling))
