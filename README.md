@@ -1,6 +1,10 @@
 # Density Functional Theory for Helium Atom <!-- omit from toc -->
 
-The goal of this project is to implement a **Self-Consistent Field (SCF)** solver to determine the ground state properties of the Helium atom using **Density Functional Theory (DFT)** by employing different approximation levels for the effective potential (Hartree only, Hartree + exchange, Hartree + exchange + correlation)
+The goal of this project is to implement a **Self-Consistent Field (SCF)** solver to determine the ground state properties of the Helium atom using **Density Functional Theory (DFT)** by employing different approximation levels for the effective potential:
+
+- **Hartree only**
+- **Hartree + Exchange**
+- **Hartree + Exchange + Correlation**
 
 ---
 <!-- omit from toc -->
@@ -471,7 +475,6 @@ The Shrödinger equation integrations are performed by the function `solve_schro
 - **Verlet 1D integration** implemented by the function `verlet_integrate_1D` in `source/solver.py`
 - **bisection** (`scipy.optimize.bisect`) to find the eigenvalue $\varepsilon$ such that the boundary condition $u(0)=0$ is satisfied.
 
-
 <!-- omit from toc -->
 #### The verlet algorithm
 
@@ -638,7 +641,7 @@ The results presented below were obtained by executing the `run_dft_suite.sh` sc
 The following table summarizes the computed ground state energy of the Helium atom, and the single electron eigenvalues across the three different levels of theory adopted:
 
 | Model | Ground State Energy (Hartree) | Single Electron Eigenvalue (Hartree) |
-|-------|-------------------------------|--------------------------------------|
+| ----- | ----------------------------- | ------------------------------------ |
 | Hydrogenic | -4.000 | -2.000 |
 | Hartree | -2.8615 | -0.9179 |
 | Hartree + Exchange | -2.7234 | -0.5169 |
