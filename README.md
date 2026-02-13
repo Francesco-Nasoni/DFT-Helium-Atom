@@ -404,15 +404,11 @@ By changing the booleans `use_exchange` and `use_correlation` in `config.yaml`, 
 
 - **Hartree + exchange**:
   
-$$
-V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)
-$$
+  $$V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r)$$
 
 - **Hartree + exchange + correlation**:
   
-$$
-V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)
-$$
+  $$V_\mathrm{eff}(r) = V_\mathrm{ext}(r) + V_H(r) + V_x(r) + V_c(r)$$
 
 ---
 
