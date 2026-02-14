@@ -26,6 +26,7 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
   - [Schrödinger Equation Integration](#schrödinger-equation-integration)
   - [Hartree potential via Poisson equation](#hartree-potential-via-poisson-equation)
   - [Self-interaction handling](#self-interaction-handling)
+  - [Physics validation](#physics-validation)
 - [Results](#results)
   - [Total energy and Ionization Energy](#total-energy-and-ionization-energy)
   - [Charge Distribution](#charge-distribution)
@@ -98,7 +99,7 @@ The repository includes the script `run_dft_suit.sh`, which automates the sequen
 To run the script type
 
 ```bash
-> bash ./run_dft_suite.sh [path_to_python.exe]
+bash ./run_dft_suite.sh [path_to_python.exe]
 ```
 
 where `path_to_python.exe` is the absolute path to the Python executable. If omitted it defaults to `python3`
@@ -628,6 +629,9 @@ When Exchange or Correlation are active, the code switches to the Kohn-Sham DFT 
 In this scenario, the Hartree term includes the Self-Interaction. The role of the exchange and correlation potential is to cancel out this spurious contribution.
 
 ---
+
+### Physics validation
+
 
 ## Results
 

@@ -44,8 +44,8 @@ if __name__ == "__main__":
     V_H_hyd = get_V_h(u_hyd, grid.r)
     
     V_H_analytical = (-(grid.r + 1) * np.exp(-2 * grid.r) + 1)/grid.r
-    diff_hartree = np.sum(np.abs(V_H_hyd - V_H_analytical))
-    print(f"Hartree potential - Total absolute difference: {diff_hartree:.3e}")
+    diff_hartree = np.max(np.abs(V_H_hyd - V_H_analytical))
+    print(f"Hartree potential - Maximum absolute difference: {diff_hartree:.3e}")
     
     ax1.plot(
         grid.r, 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     )
     ax1.set_xlabel("r (Bohr)", fontsize=LABEL_SIZE)
     ax1.set_ylabel(r"$V_H(r)$", fontsize=LABEL_SIZE)
-    ax1.set_title(f"Hartree Potential Validation for Hydrogen\n(Total Abs. Diff: {diff_hartree:.3e})", 
+    ax1.set_title(f"Hartree Potential Validation for Hydrogen\n(Max Abs. Diff: {diff_hartree:.3e})", 
                   fontsize=LABEL_SIZE * 1.1, pad=15)
     ax1.legend(fontsize=LABEL_SIZE * 0.8, loc="best")
     ax1.grid(True, alpha=0.3)
@@ -76,8 +76,8 @@ if __name__ == "__main__":
     Norm = simpson(u_analytical**2, grid.r)
     u_analytical = u_analytical / np.sqrt(Norm)
     
-    diff_wavefunction = np.sum(np.abs(u_ind - u_analytical))
-    print(f"Wavefunction - Total absolute difference: {diff_wavefunction:.3e}")
+    diff_wavefunction = np.max(np.abs(u_ind - u_analytical))
+    print(f"Wavefunction - Maximum absolute difference: {diff_wavefunction:.3e}")
     
     ax2.plot(
         grid.r, 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     )
     ax2.set_xlabel("r (Bohr)", fontsize=LABEL_SIZE)
     ax2.set_ylabel(r"$u(r)$", fontsize=LABEL_SIZE)
-    ax2.set_title(f"Radial Wavefunction Comparison\n(Total Abs. Diff: {diff_wavefunction:.3e})", 
+    ax2.set_title(f"Radial Wavefunction Comparison\n(Max Abs. Diff: {diff_wavefunction:.3e})", 
                   fontsize=LABEL_SIZE * 1.1, pad=15)
     ax2.legend(fontsize=LABEL_SIZE * 0.8, loc="best")
     ax2.grid(True, alpha=0.3)
