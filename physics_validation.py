@@ -38,7 +38,7 @@ if __name__ == "__main__":
     u_hyd, _ = solve_schrodinger(grid, 1, V_eff_0, [-1, 0], 0.1)
     
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    fig, (ax2, ax1) = plt.subplots(1, 2, figsize=(16, 6))
     
     # ---- LEFT PANEL: HARTREE POTENTIAL COMPARISON ----
     V_H_hyd = get_V_h(u_hyd, grid.r)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     ax1.plot(
         grid.r, 
         V_H_analytical, 
-        label=r"Analytical: $(-(r+1)e^{-2r} + 1)/r$",
+        label=r"Analytical: $(1-(r+1)e^{-2r})/r$",
         color="tab:orange",
         linestyle="--",
         lw=LINE_WIDTH
