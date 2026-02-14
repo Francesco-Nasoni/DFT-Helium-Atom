@@ -693,12 +693,8 @@ In contrast, the DFT approach uses the full Hartree term and adds an explicit ex
 
 ## Conclusions
 
-A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations clearly illustrate the competition between nuclear attraction and electronic repulsion, and how it reshapes the effective potential and the orbital.
+A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations illustrate the competition between nuclear attraction and electronic repulsion, and how it reshapes the effective potential and the orbital.\
+The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion, and the stabilizing role of Exchange and Correlation, which partially counteracts this expansion.
+The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.). The remaining discrepancy between the calculated total energy and the experimental reference is attributable to well-known limitations of LDA.
 
-- **Accuracy**: The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.).
-
-- **Physical Insight**: The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion, and the stabilizing role of Exchange and Correlation, which partially counteracts this expansion.
-
-- **Limitations**: The remaining discrepancy between the calculated total energy and the experimental reference is attributable to well-known limitations of LDA
-
-Overall, this project offers a clear and compact implementation of a self-consistent Kohn–Sham solver, making it easy to inspect how different approximations (Hartree, exchange, correlation) modify the effective potential, the density, and the total energy.
+Overall, this project offers a compact implementation of a self-consistent Kohn–Sham solver for a simple case such as the Helium atom, making it easy to show how different approximations (Hartree, exchange, correlation) modify the effective potential, the density, and the total energy.
