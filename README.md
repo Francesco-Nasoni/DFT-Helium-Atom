@@ -346,11 +346,11 @@ with the parameterization for $\varepsilon_c$:
 
   which leads to:
 
-  $$ V_c(r_s)= \varepsilon_c \frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s} \quad \mathrm{for} \quad r_s \ge 1.$$
+  $$V_c(r_s)= \varepsilon_c \frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s} \quad \mathrm{for} \quad r_s \ge 1.$$
 
 - For $r_s < 1$:
   
-  $$ \varepsilon_c = A\ln r_s + B + C r_s \ln r_s + D r_s, $$
+  $$\varepsilon_c = A\ln r_s + B + C r_s \ln r_s + D r_s, $$
 
   which leads to:
 
