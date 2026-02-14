@@ -10,7 +10,7 @@ def get_V_h(u_r, line_grid):
         r_eff = max(r, 1e-12)
         return -(u_r[idx] ** 2) / r_eff
 
-    # We solve the particural solution by integrating using Verlet and boundary
+    # We solve the particular solution by integrating using Verlet and boundary
     # conditions U(0)=0 and U(h)=0 so that both U and U' are zero in the origin
     U_part = verlet_integrate_1D(U_2_poisson, 0, 0, line_grid)
     qmax = simpson(u_r**2, line_grid)
