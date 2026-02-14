@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
 
-from source.solver import RadialGrid, solve_shrodinger
+from source.solver import RadialGrid, solve_schrodinger
 from source.dft_potentials import get_V_eff, get_TOTEN
 from source.io_utils import load_config_yaml, append_csv, save_profiles
 
@@ -55,7 +55,7 @@ def main():
 
     # --- FIRST CALCULATION (V_eff=0) --- #
     V_eff_0 = np.zeros(len(grid.r))
-    u_ind, E_root = solve_shrodinger(
+    u_ind, E_root = solve_schrodinger(
         grid, Z, V_eff_0, E_search_range, E_rough_step
     )
 
@@ -78,7 +78,7 @@ def main():
     it = 1
     while it < max_iterations:
 
-        u_new, E_new = solve_shrodinger(grid, Z, V_eff_input, E_search_range, E_rough_step)
+        u_new, E_new = solve_schrodinger(grid, Z, V_eff_input, E_search_range, E_rough_step)
         V_eff_output, V_H_new, V_X_new, V_C_new, ec_new = get_V_eff(
             u_new, grid.r, use_exchange, use_correlation
         )

@@ -23,7 +23,7 @@ The goal of this project is to implement a **Self-Consistent Field (SCF)** solve
 - [Available Models](#available-models)
 - [Implementation](#implementation)
   - [Self-Consistent loop](#self-consistent-loop)
-  - [Shrödinger Equation Integration](#shrödinger-equation-integration)
+  - [Schrödinger Equation Integration](#schrödinger-equation-integration)
   - [Hartree potential via Poisson equation](#hartree-potential-via-poisson-equation)
   - [Self-interaction handling](#self-interaction-handling)
 - [Results](#results)
@@ -436,7 +436,7 @@ Pseudo-code:
 
 ```python
 while it < max_iterations:
-    u_new, eps_new = solve_shrodinger(..., V_eff_in)
+    u_new, eps_new = solve_schrodinger(..., V_eff_in)
     V_eff_out, V_H, V_x, V_c, ec = get_V_eff(u_new, ...)
     E_tot_new = get_TOTEN(eps_new, u_new, ..., V_H, V_x, V_c, ec)
 
@@ -468,9 +468,9 @@ The plot below shows a representative self-consistent convergence run for the Ha
 
 The total energy quickly approaches a stable plateau, at the same time, the iteration-to-iteration change $\Delta E$ drops by several orders of magnitude, confirming that the SCF cycle has reached convergence.
 
-### Shrödinger Equation Integration
+### Schrödinger Equation Integration
 
-The Shrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combines:
+The Schrödinger equation integrations are performed by the function `solve_schrodinger` in `source/solver.py`. This function combines:
 
 - **Verlet 1D integration** implemented by the function `verlet_integrate_1D` in `source/solver.py`
 - **bisection** (`scipy.optimize.bisect`) to find the eigenvalue $\varepsilon$ such that the boundary condition $u(0)=0$ is satisfied.
@@ -493,7 +493,7 @@ $$
 
 once $\mathbf{x}(0)$ and $\mathbf{x}(\Delta t)$ are given, the algorithm gives the completely integrated solution $\mathbf{x}(t)$.
 
-The Shrödinger equation that has to be solved for the Helium atom with the DFT theory seen in [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation), can be rewritten as
+The Schrödinger equation that has to be solved for the Helium atom with the DFT theory seen in [Spherical symmetry and radial equation](#spherical-symmetry-and-radial-equation), can be rewritten as
 
 $$
 \ddot{u}(r)=(2V_{\mathrm{eff}}(r)-2\varepsilon)u(r)
@@ -519,12 +519,12 @@ This approach leverages the asymptotic behavior of the system where electron int
 Since the initial points are defined at $r_\mathrm{max}$ and $r_\mathrm{max} - h$, the Verlet algorithm integrates **backwards** from $r_\mathrm{max}$ to $r = 0$.
 
 >NOTE:\
->the code always solves the Shrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
+>the code always solves the Schrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
 
 <!-- omit from toc -->
 #### The bisection method
 
-If the eigenvalue $\varepsilon$ is known, the solution $u(r)$ is obtained by a single application of Verlet integration. However, since $\varepsilon$ is initially unknown, the integration must be performed iteratively to find the value for which the boundary condition $u(0)=0$ is satisfied. This procedure is managed by the `solve_shrodinger` function, which utilizes `scipy.optimize.bisect` to identify the root of the wavefunction at the origin as a function of $\varepsilon$.
+If the eigenvalue $\varepsilon$ is known, the solution $u(r)$ is obtained by a single application of Verlet integration. However, since $\varepsilon$ is initially unknown, the integration must be performed iteratively to find the value for which the boundary condition $u(0)=0$ is satisfied. This procedure is managed by the `solve_schrodinger` function, which utilizes `scipy.optimize.bisect` to identify the root of the wavefunction at the origin as a function of $\varepsilon$.
 
 To function correctly, the bisection method requires an interval $[a, b]$ where the function $u(0; \varepsilon)$ changes sign. Consequently, the algorithm first performs a coarse scan within the range $[E_{\min}, E_{\max}]$ using a fixed step `rough_step` to locate this sign change. The parameters $E_{\min}$, $E_{\max}$, and `rough_step` are defined in the `config.yaml` file.
 
@@ -533,7 +533,7 @@ To function correctly, the bisection method requires an interval $[a, b]$ where 
 After convergence, the radial solution is normalized so that $\int_0^\infty |u(r)|^2dr = 1$.
 
 <!-- omit from toc -->
-#### Summary of `solve_shrodinger` workflow
+#### Summary of `solve_schrodinger` workflow
 
 1. **Initialization and Coarse Scan**: The function performs a preliminary sweep across the range ($E_{\min}$, $E_{\max}$) with steps of `rough_step` to identify an interval $[a, b]$ where the wavefunction value at the origin, $u(0; \varepsilon)$, changes sign.
 2. **Root-Finding Loop**: It invokes `scipy.optimize.bisect` inside the range $[a, b]$ to precisely identify the eigenvalue $\varepsilon$ that satisfies the boundary condition $u(0) = 0$ within a tolerance of $10^{-8}$ A.u.
@@ -654,11 +654,11 @@ All values are expressed in atomic units (Hartree). For the experimental single 
 
 The figure below displays the electronic probability density $|u(r)|^2$ for the three different approximation levels, together with the solution for the hydrogenic model ($V_\text{eff}=V_\text{nuc}$). Note that in this figure $V_\mathrm{eff}$ excludes the nuclear potential that is plotted aside.
 
-![Energy convergence across different DFT models](visualization/comparison_radial_density.png)
+<!-- ![Energy convergence across different DFT models](visualization/comparison_radial_density.png) -->
 
-<!-- ```html
-<img src="visualization/comparison_radial_density.png" width="80%" alt="Energy convergence across different DFT models">
-``` -->
+<p align="center">
+  <img src="visualization/comparison_radial_density.png" width="80%" alt="Energy convergence across different DFT models">
+</p>
 
 ### Potential Landscape
 
@@ -674,24 +674,24 @@ This visualization highlights the competition between the attractive nuclear pot
 
 ### Discussion
 
-From the density distribution plot it is clear that the introduction of the electron-electron introduction "inflate" the atomic density by shifting the probability density away from the nucleus.
+From the density distribution plot it is clear that the introduction of the electron-electron interaction "inflate" the atomic density by shifting the probability density away from the nucleus.
 
-- In the **hydrogenic model** electrons occupies $1s$ orbital as if the other did not exist, feeling the nuclear attraction without any screening. For the density, this results in the highest peak located closer to the nucleus (high density close to the nucleus). The obtained energy of the system (**-4.00 a.u.**) diverges significantly from the experimental value of **-2.9037 a.u.**
+- In the **hydrogenic model** electrons occupy $1s$ orbital as if the other did not exist, feeling the nuclear attraction without any screening. For the density, this results in the highest peak located closer to the nucleus (high density close to the nucleus). The obtained energy of the system (**-4.00 a.u.**) diverges significantly from the experimental value of **-2.9037 a.u.**
 
-- In the **Hartree model**, the system get "destabilized" and the energy increase to **-2.8615 a.u.**, closer to the experimental value. The Hartree potential introduces electron-electron repulsion, this forces the orbital to expand, shifting the electron density peak outward and reducing its maximum height.
+- In the **Hartree model**, the system gets "destabilized" and the energy increases to **-2.8615 a.u.**, closer to the experimental value. The Hartree potential introduces electron-electron repulsion, this forces the orbital to expand, shifting the electron density peak outward and reducing its maximum height.
 
-- When switching to a standard KS-DFT setup, using **full Hartree potential plus the Exchange correction**, the total energy increases to **-2.7234 a.u.**, and the density further expand outward.This behavior is not indicative of an error, indeed the Hartree-only model uses half of the Hartree potential as an *ad hoc* modification to remove self-interaction, which leads to a fortuitous lowering of the energy through error cancellation.\
+- When switching to a standard KS-DFT setup, using **full Hartree potential plus the Exchange correction**, the total energy increases to **-2.7234 a.u.**, and the density further expands outward.This behavior is not indicative of an error, indeed the Hartree-only model uses half of the Hartree potential as an *ad hoc* modification to remove self-interaction, which leads to a fortuitous lowering of the energy through error cancellation.\
 In contrast, the DFT approach uses the full Hartree term and adds an explicit exchange potential, making the resulting density more physically motivated and more transferable, and therefore the density distribution is more trustworthy than the one obtained from the half-Hartree construction.
 
-- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of repulsion of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a-u.**. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
+- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of repulsion of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a.u.**. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
 
 ---
 
 ## Conclusions
 
-A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations clearly illustrate the competition between nuclear attraction and electronic repulsion, and how reshapes the effective potential and the orbital.
+A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations clearly illustrate the competition between nuclear attraction and electronic repulsion, and how it reshapes the effective potential and the orbital.
 
-- **Accuracy**: The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.l).
+- **Accuracy**: The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.).
 
 - **Physical Insight**: The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion, and the stabilizing role of Exchange and Correlation, which partially counteracts this expansion.
 

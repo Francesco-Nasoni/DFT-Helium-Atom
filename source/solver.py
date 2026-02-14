@@ -41,7 +41,7 @@ def F(E, Z, V_eff_r, r, u_r):
     return 2 * (- Z / r - E + V_eff_r) * u_r
 
 
-def solve_shrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
+def solve_schrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     h = grid.h
     u_rmax = grid.r_max * np.exp(-Z * grid.r_max)
     u_rmax_h = (grid.r_max - grid.h) * np.exp(-Z * grid.r_max + Z * h)
