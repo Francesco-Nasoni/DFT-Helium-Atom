@@ -23,7 +23,6 @@ def main():
     Z = 2
 
     # --- GRID PARAMETERS--- #
-    r_min = cfg["grid"]["r_min"]
     r_max = cfg["grid"]["r_max"]
     h = cfg["grid"]["h"]
 
@@ -51,7 +50,7 @@ def main():
     out_dir.mkdir(exist_ok=True)
 
     # Define the grid
-    grid = RadialGrid(r_min, r_max, h)
+    grid = RadialGrid(1e-12, r_max, h)
 
     # --- FIRST CALCULATION (V_eff=0) --- #
     V_eff_0 = np.zeros(len(grid.r))

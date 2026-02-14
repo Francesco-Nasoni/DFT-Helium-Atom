@@ -77,7 +77,7 @@ The program performs an initial “independent-electron” solve and then enters
 <!-- omit from toc -->
 ### 3) (Optional) Quick plots
 
-After a successful run, you can visualize the results using any preferred tool (MATLAB, Julia, gnuplot, custom scripts, etc.). For convenience, a Python plotting script is included:
+After a successful run, it is possible to read the output and visualize the results using any preferred tool (MATLAB, Julia, gnuplot, custom scripts, etc.). For convenience, a Python plotting script is included:
 
 ```bash
 python visualization/plot_results.py <input_dir> [plot_label] [output_dir]
@@ -92,7 +92,7 @@ This script reads the output files and generates figures showing SCF convergence
 <!-- omit from toc -->
 ### 4) (Optional) Automated Execution
 
-The repository includes the script `run_dft_suit.sh`, which automates the sequential execution of the three possible configurations:
+The repository includes the script `run_dft_suite.sh`, which automates the sequential execution of the three possible configurations:
 
 - Hartree
 - Hartree + Exchange
@@ -117,7 +117,7 @@ The parameters are:
 <!-- omit from toc -->
 ### Grid
 
-- `r_min`, `r_max`: radial domain
+- `r_max`: radial maximum
 - `h`: grid step
 
 <!-- omit from toc -->
@@ -146,7 +146,7 @@ The parameters are:
 - `scf_log_csv`: SCF log filename
 - `profiles_dat`: radial profiles filename
 
-Implementation note: if `r_min` is set to `0`, it is internally replaced by a small positive value to avoid divisions by zero at the origin.
+Note: $r_\mathrm{min}=10^{-12}$ always
 
 ---
 
@@ -167,16 +167,17 @@ A CSV log of the SCF iterations, including quantities such as:
 <!-- omit from toc -->
 ### 2) `profiles_final.dat`
 
-A whitespace-separated table of final radial profiles, it includes:
+A table of final radial profiles, it includes:
 
 - `r` (grid)
-- `u` (radial amplitude)
+- `u` (radial probability amplitude)
 - `V_H` (Hartree potential)
 - `V_x` (exchange, if enabled)
 - `V_c` (correlation, if enabled)
 - `V_eff` (final effective potential)
 
-Note: all the results are given in Atomic Units.
+Note 1: all the results are given in Atomic Units.\
+Note 2: `V_eff` does not include the nuclear potential ($V_\text{nuc}=-Z/r$).
 
 ---
 
@@ -187,7 +188,7 @@ Note: all the results are given in Atomic Units.
 
 ### DFT Kohn-Sham equation
 
-When a system is studied using DFT, one introduces a fictitious system of non-interacting electrons that reproduces the exact interacting density and by the Hohenberg–Kohn theorems, this density uniquely determines the ground-state properties. The fictitious non-interacting system is governed by the Kohn–Sham (KS) equation which reads:
+When a system is studied using DFT, one introduces a fictitious system of non-interacting electrons that reproduces the exact interacting density, and by the Hohenberg–Kohn theorems, this density uniquely determines the ground-state properties of the original system. The fictitious non-interacting system is governed by the Kohn–Sham (KS) equation which reads:
 
 $$
 \left[-\frac{1}{2}\nabla^2 + V_\mathrm{eff}(\mathbf{r})\right]\phi_i(\mathbf{r}) = \varepsilon_i \phi_i(\mathbf{r}),
@@ -243,7 +244,7 @@ $$
 E_H[n] = \frac{1}{2}\iint \frac{n(\mathbf{r})n(\mathbf{r}')}{|\mathbf{r}-\mathbf{r}'|} \ d^3r \ d^3r'.
 $$
 
-Given an approximation for $E_{xc}[n]$, the KS exchange-correlation potential is obtained by functional derivative:
+Given an approximation for $E_{xc}[n]$, the KS exchange-correlation potential is obtained by the functional derivative:
 
 $$
 V_{xc}(\mathbf{r}) = \frac{\delta E_{xc}[n]}{\delta n(\mathbf{r})}.
@@ -259,7 +260,7 @@ $$
 
 Because $V_\mathrm{eff}$ depends on $n(r)$, and $n(r)$ depends on the KS orbitals, the KS equations must be solved self-consistently:
 
-1. guess $n(r)$ or $V_\mathrm{eff}(r)$,
+1. guess $n(r)$, and consequently $V_\mathrm{eff}(r)$,
 2. solve KS for orbitals and $\varepsilon_i$,
 3. build new density $n_\mathrm{new}(r)$,
 4. update $V_\mathrm{eff}$ from $n_\mathrm{new}$,
@@ -289,7 +290,7 @@ $$
 
 where $u(r) \equiv u_{10}(r)$.
 
-Helium has a doubly occupied 1s orbital (spin up + spin down), thus the  density is:
+Helium has a doubly occupied 1s orbital (spin up + spin down), thus the total density is:
 
 $$
 n(r) = 2|\phi_{1s}(r)|^2 = \left | \frac{u(r)}{r}Y_{00}(\theta,\phi) \right |^2 = 2\frac{|u(r)|^2}{4\pi r^2}.
@@ -297,7 +298,7 @@ $$
 
 ### Local Density Approximation (LDA) for exchange and correlation
 
-The exact form of the exchange-correlation potential $V_{xc}(\mathbf{r})$ is unknown, it must be expressed using models and approximations. In general, for a non-homogeneous system, it is a function of the density and its gradients
+The exact form of the exchange-correlation potential $V_{xc}(\mathbf{r})$ is unknown, therefore it must be expressed using models and approximations. In general, for a non-homogeneous system, it is a function of the density and its gradients
 
 $$V_{xc}(\mathbf{r}) = V_{xc}(n, \nabla n, \nabla^2 n, \ldots)$$
 
@@ -306,7 +307,7 @@ The Local Density Approximation (LDA) assumes that, at each point the XC potenti
 <!-- omit from toc -->
 #### LDA exchange
 
-For an UEG:
+For a UEG, it holds:
 
 $$
 V_x(r) = -\left(\frac{3}{\pi}\right)^{1/3} n^{1/3}(r).
@@ -321,7 +322,7 @@ $$
 <!-- omit from toc -->
 #### LDA correlation (Ceperley–Alder / Perdew–Zunger parameterization)
 
-Correlation is included through a  UEG-based parameterization derived from Quantum Monte Carlo data (Ceperley–Alder) and fit by Perdew–Zunger (Perdew & Zunger PRB 23 5048, 1981; Ceperley, PRB 18 3126, 1978; Ceperley PRL 45 566, 1980).
+Correlation is included through a UEG-based parameterization by Perdew–Zunger with Quantum Monte Carlo parameters from Ceperley–Alder (Perdew & Zunger PRB 23 5048, 1981; Ceperley, PRB 18 3126, 1978; Ceperley PRL 45 566, 1980).
 
  Define the Wigner–Seitz radius $r_s$ by:
 
@@ -377,7 +378,7 @@ $$
 n(r) = \frac{u(r)^2}{2\pi r^2},
 $$
 
-thus integrals of the kind $f(r)n(r)$ becomes
+thus integrals of the kind $f(r)n(r)$ become
 
 $$
 \int f(r) n(r) d^3r = \int_{0}^{\infty} f(r) n(r) 4\pi r^2 dr = \int_{0}^{\infty} f(r) \frac{u^2}{2\pi r^2} 4\pi r^2 dr = 2 \int_{0}^{\infty} f(r) u(r)^2 dr.
@@ -505,7 +506,7 @@ $$
 F(u(r))= 2 (V_{\mathrm{eff}}(r)-\varepsilon) \ u(r).
 $$
 
-The Verlet algorithm is bootstrapped by using the hydrogenic solution at high distance
+The Verlet algorithm is bootstrapped by using the hydrogenic solution at large distance
 
 $$
 \begin{cases}
@@ -514,12 +515,12 @@ $$
 \end{cases}
 $$
 
-This approach leverages the asymptotic behavior of the system where electron interactions become negligible, allowing accurate initialization of the iterative algorithm from physically meaningful starting conditions.
+This approach exploits the asymptotic behavior of the system where electron interactions become negligible, allowing accurate initialization of the iterative algorithm from physically meaningful starting conditions.
 
-Since the initial points are defined at $r_\mathrm{max}$ and $r_\mathrm{max} - h$, the Verlet algorithm integrates **backwards** from $r_\mathrm{max}$ to $r = 0$.
+Since the initial points are defined at $r_\mathrm{max}$ and ($r_\mathrm{max} - h$), the Verlet algorithm integrates **backwards** from $r_\mathrm{max}$ to $r_\mathrm{min}=0$.
 
 >NOTE:\
->the code always solves the Schrödinger equation for a single electron, then it consider that the total density is given by two times the single electron density.
+>the code always solves the Schrödinger equation for a single electron, then it considers that the total density is given by two times the single electron density.
 
 <!-- omit from toc -->
 #### The bisection method
@@ -642,13 +643,13 @@ To run the validation script:
 python physics_validation.py
 ```
 
-The script uses the parameter of the grid and bisection form the `config.yaml` and generates a two-panel comparison. Below is displayed an example produced for $r_\text{min}=0$, $r_\text{max}=10$, $h=10^{-3}$ (initial value shipped with the repo):
+The script uses the parameter of the grid and bisection from the `config.yaml` and generates a two-panel comparison. Below is displayed an example produced for $r_\text{max}=10$, $h=10^{-3}$ (initial values in the `config.yaml` shipped with the repo):
 
 ![Code Validation](physics_validation.png)
 
 ### Schrödinger Solver Validation
 
-The left panel tests the function `solve_schrodinger`, providing validation for the Verlet integrator and the bisection algorithm. It solves the radial Schrödinger equation a single-electron system with Z=2.
+The left panel tests the function `solve_schrodinger`, providing validation for the Verlet integrator and the logic behind the use of the bisection method. It solves the radial Schrödinger equation for a single-electron system with Z=2.
 
 The resulting numerical probability amplitude u(r) is compared against the exact hydrogenic solution:
 
@@ -660,13 +661,13 @@ As shown in the figure, the numerical solution (blue line) overlaps perfectly wi
 
 ### Poisson Solver Validation
 
-The right panel tests the accuracy of the Poisson solver. It computes the Hartree potential generated by the ground state of Hydrogen atom (using the Helium solver functions with forced Z=1). Then the numerical result is compared with the analytical Hydrogen solution
+The right panel tests the accuracy of the Poisson solver in `get_V_h`. It computes the Hartree potential generated by the ground state of Hydrogen atom (using the Helium solver functions with forced Z=1). Then the numerical result is compared with the analytical Hydrogen solution
 
 $$
 V_H(r) = \frac{1}{r} \ [1 - (r+1)e^{-2r}]
 $$
 
-Also in this case the figure show an excellent overlap between the numerical and the analytical solution, validating the Poisson solver.
+Also in this case the figure shows an excellent overlap between the numerical and the analytical curves, validating the accuracy of the Poisson solver.
 
 ## Results
 
@@ -688,7 +689,7 @@ All values are expressed in atomic units (Hartree). For the experimental single 
 
 ### Charge Distribution
 
-The figure below displays the electronic probability density $|u(r)|^2$ for the three different approximation levels, together with the solution for the hydrogenic model ($V_\text{eff}=V_\text{nuc}$). Note that in this figure $V_\mathrm{eff}$ excludes the nuclear potential that is plotted aside.
+The figure below displays the electronic probability density $|u(r)|^2$ for the three different approximation levels, together with the solution for the hydrogenic model ($V_\text{eff}=V_\text{nuc}$). 
 
 <!-- ![Energy convergence across different DFT models](visualization/comparison_radial_density.png) -->
 
@@ -698,7 +699,7 @@ The figure below displays the electronic probability density $|u(r)|^2$ for the 
 
 ### Potential Landscape
 
-The figure below breaks down the components of the total effective potential ($V_\text{eff}$) for the fully correlated model.
+The figure below shows the components of the total effective potential for the fully correlated model. Note that in this figure $V_\mathrm{eff}$ excludes the nuclear potential that is plotted separately.
 
 <!-- ![Effective potential components](visualization/Hartree_Exchange_Correlation_potentials.png) -->
 
@@ -710,23 +711,25 @@ This visualization highlights the competition between the attractive nuclear pot
 
 ### Discussion
 
-From the density distribution plot it is clear that the introduction of the electron-electron interaction "inflate" the atomic density by shifting the probability density away from the nucleus.
+From the density distribution plot, it is clear that the introduction of the electron-electron interaction "inflates" the atomic density by shifting the probability density away from the nucleus.
 
-- In the **hydrogenic model** electrons occupy $1s$ orbital as if the other did not exist, feeling the nuclear attraction without any screening. For the density, this results in the highest peak located closer to the nucleus (high density close to the nucleus). The obtained energy of the system (**-4.00 a.u.**) diverges significantly from the experimental value of **-2.9037 a.u.**
+- In the **hydrogenic model** electrons occupy $1s$ orbital as if the other electron did not exist, feeling the nuclear attraction without any screening. For the density, this results in the highest peak located closer to the nucleus (high density close to the nucleus). The obtained energy of the system (**-4.00 a.u.**) diverges significantly from the experimental value of **-2.9037 a.u.**
 
 - In the **Hartree model**, the system gets "destabilized" and the energy increases to **-2.8615 a.u.**, closer to the experimental value. The Hartree potential introduces electron-electron repulsion, this forces the orbital to expand, shifting the electron density peak outward and reducing its maximum height.
 
 - When switching to a standard KS-DFT setup, using **full Hartree potential plus the Exchange correction**, the total energy increases to **-2.7234 a.u.**, and the density further expands outward.This behavior is not indicative of an error, indeed the Hartree-only model uses half of the Hartree potential as an *ad hoc* modification to remove self-interaction, which leads to a fortuitous lowering of the energy through error cancellation.\
 In contrast, the DFT approach uses the full Hartree term and adds an explicit exchange potential, making the resulting density more physically motivated and more transferable, and therefore the density distribution is more trustworthy than the one obtained from the half-Hartree construction.
 
-- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of repulsion of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a.u.**. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
+- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a.u.**. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
 
 ---
 
 ## Conclusions
 
 A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations illustrate the competition between nuclear attraction and electronic repulsion, and how it reshapes the effective potential and the orbital.\
-The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion, and the stabilizing role of Exchange and Correlation, which partially counteracts this expansion.
+The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion and total energy increase.
+Notably, the transition from the "Hartree-only" model to the formal DFT framework (Hartree + Exchange) introduces a counterintuitive increase in total energy. This is a consequence of moving from an *ad hoc* self-interaction-free Hartree construction to a full Kohn-Sham approach where the electron interacts with the total density.In this context, the LDA exchange potential only partially compensates for the self-interaction energy, a phenomenon known as the Self-Interaction Error.
+
 The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.). The remaining discrepancy between the calculated total energy and the experimental reference is attributable to well-known limitations of LDA.
 
-Overall, this project offers a compact implementation of a self-consistent Kohn–Sham solver for a simple case such as the Helium atom, making it easy to show how different approximations (Hartree, exchange, correlation) modify the effective potential, the density, and the total energy.
+Overall, this project offers an implementation of a self-consistent Kohn–Sham solver for a simple case such as the Helium atom, making it easy to show how different approximations (Hartree, exchange, correlation) modify the effective potential, the density, and the total energy.

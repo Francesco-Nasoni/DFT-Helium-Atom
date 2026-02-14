@@ -1,6 +1,5 @@
 config:
   grid:
-    r_min: 1.0e-12
     r_max: 10.0
     h: 1.0e-3         #grid step
 

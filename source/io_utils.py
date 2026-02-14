@@ -7,11 +7,8 @@ def load_config_yaml(cfg_file: str):
     with open(config_path, 'r') as f:
         cfg = yaml.safe_load(f)["config"]
     
-    if cfg["grid"]["r_min"] < 0 or cfg["grid"]["r_max"]<0:
-        raise ValueError(f"r_min and r_max must be greater or equal to 0")
-
-    if cfg["grid"]["r_min"] >= cfg["grid"]["r_max"]:
-        raise ValueError(f"r_min must be less than r_max")
+    if cfg["grid"]["r_max"]<0:
+        raise ValueError(f"r_max must be greater or equal to 0")
     
     if cfg["grid"]["h"] <= 0:
         raise ValueError(f"h must be positive")
@@ -30,9 +27,6 @@ def load_config_yaml(cfg_file: str):
     
     if cfg["scf"]["TOTEN_threshold"] <= 0:
         raise ValueError(f"TOTEN_convergence_threshold must be positive")
-    
-    if cfg["grid"]["r_min"] == 0:
-        cfg["grid"]["r_min"] = 1e-12
 
     return cfg    
     
