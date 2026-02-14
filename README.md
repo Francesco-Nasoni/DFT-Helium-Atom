@@ -318,7 +318,9 @@ $$
 <!-- omit from toc -->
 #### LDA correlation (Ceperley–Alder / Perdew–Zunger parameterization)
 
-Correlation is included through a standard UEG-based parameterization derived from Quantum Monte Carlo data (Ceperley–Alder) and fit by Perdew–Zunger. Define the Wigner–Seitz radius $r_s$ by:
+Correlation is included through a  UEG-based parameterization derived from Quantum Monte Carlo data (Ceperley–Alder) and fit by Perdew–Zunger (Perdew & Zunger PRB 23 5048, 1981; Ceperley, PRB 18 3126, 1978; Ceperley PRL 45 566, 1980).
+
+ Define the Wigner–Seitz radius $r_s$ by:
 
 $$
 n = \frac{3}{4\pi r_s^3}.
@@ -336,32 +338,23 @@ $$
 E_c = \int d^3r \ \varepsilon_c [n(\mathbf{r})] (\mathbf{r}),
 $$
 
-a commonly used parameterization for $\varepsilon_c$ is:
+with the parameterization for $\varepsilon_c$:
 
 - For $r_s \ge 1$:
 
-$$
-\varepsilon_c = \frac{\gamma}{1+\beta_1\sqrt{r_s}+\beta_2 r_s},
-$$
+  $$\varepsilon_c = \frac{\gamma}{1+\beta_1\sqrt{r_s}+\beta_2 r_s},$$
 
-which leads to:
+  which leads to:
 
-$$
-V_c(r_s)= \varepsilon_c
-\frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s} \quad \mathrm{for} \quad r_s \ge 1.
-$$
+  $$ V_c(r_s)= \varepsilon_c \frac{1+\frac{7}{6}\beta_1\sqrt{r_s}+\frac{4}{3}\beta_2 r_s}{1+\beta_1\sqrt{r_s}+\beta_2 r_s} \quad \mathrm{for} \quad r_s \ge 1.$$
 
 - For $r_s < 1$:
   
-$$
-\varepsilon_c = A\ln r_s + B + C r_s \ln r_s + D r_s,
-$$
+  $$ \varepsilon_c = A\ln r_s + B + C r_s \ln r_s + D r_s, $$
 
-which leads to:
+  which leads to:
 
-$$
-V_c(r_s)=A\ln r_s + B - \frac{A}{3} + \frac{2}{3}C r_s \ln r_s + \frac{(2D-C)}{3}r_s \quad \mathrm{for} \quad r_s < 1.
-$$
+  $$V_c(r_s)=A\ln r_s + B - \frac{A}{3} + \frac{2}{3}C r_s \ln r_s + \frac{(2D-C)}{3}r_s \quad \mathrm{for} \quad r_s < 1.$$
 
 where $\beta_1$, $\beta_2$, $\gamma$, A, B, C, D are tabulated parameters.
 
