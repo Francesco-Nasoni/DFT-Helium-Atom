@@ -464,7 +464,11 @@ and $n^{(0)}(r)$ is used to calculate $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
 
 The plot below shows a representative self-consistent convergence run for the Hartree + Exchange + Correlation case. The blue curve reports the total energy (left y-axis), while the red curve shows the iteration-to-iteration change $\Delta E$ (right y-axis, logarithmic scale).
 
-![Self consistent energy convergence](visualization/image.png)
+<!-- ![Self consistent energy convergence](visualization/image.png) -->
+
+<p align="center">
+  <img src="visualization/Hartree_Exchange_Correlation_scf_convergence.png" width="85%" alt="Self consistent energy convergence">
+</p>
 
 The total energy quickly approaches a stable plateau, at the same time, the iteration-to-iteration change $\Delta E$ drops by several orders of magnitude, confirming that the SCF cycle has reached convergence.
 
@@ -657,18 +661,18 @@ The figure below displays the electronic probability density $|u(r)|^2$ for the 
 <!-- ![Energy convergence across different DFT models](visualization/comparison_radial_density.png) -->
 
 <p align="center">
-  <img src="visualization/comparison_radial_density.png" width="80%" alt="Energy convergence across different DFT models">
+  <img src="visualization/comparison_radial_density.png" width="85%" alt="Energy convergence across different DFT models">
 </p>
 
 ### Potential Landscape
 
 The figure below breaks down the components of the total effective potential ($V_\text{eff}$) for the fully correlated model.
 
-![Effective potential components](visualization/Hartree_Exchange_Correlation_potentials.png)
+<!-- ![Effective potential components](visualization/Hartree_Exchange_Correlation_potentials.png) -->
 
-<!-- ```html
-<img src="visualization/Hartree_Exchange_Correlation_potentials.png" width="80%" alt="Effective potential components">
-``` -->
+<p align="center">
+  <img src="visualization/Hartree_Exchange_Correlation_potentials.png" width="85%" alt="Effective potential components">
+</p>
 
 This visualization highlights the competition between the attractive nuclear potential ($-Z/r$) and the repulsive Hartree screening ($V_H$), as well as the relative magnitudes of the Exchange ($V_x$) and Correlation ($V_c$) corrections.
 
