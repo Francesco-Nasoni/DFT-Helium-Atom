@@ -72,7 +72,7 @@ From the repository root:
 python DFT_helium.py
 ```
 
-The program performs an initial “independent-electron” solve and then enters a SCF loop, writing outputs into the configured output directory.
+The program performs an initial “independent-electron” solve and then enters a SCF loop, printing a log in the terminal and writing outputs into the configured output directory.
 
 <!-- omit from toc -->
 ### 3) (Optional) Quick plots
@@ -459,7 +459,7 @@ and $n^{(0)}(r)$ is used to calculate $V_H^{(0)}$ , $V_x^{(0)}$ and $V_c^{(0)}$.
 <!-- omit from toc -->
 #### Convergence example
 
-The plot below shows a representative self-consistent convergence run for the Hartree + Exchange + Correlation case. The blue curve reports the total energy (left y-axis), while the red curve shows the iteration-to-iteration change $\Delta E$ (right y-axis, logarithmic scale).
+The plot below represent a self-consistent convergence run for the Hartree + Exchange + Correlation case. The blue curve reports the total energy (left y-axis), while the red curve shows the iteration-to-iteration change $\Delta E$ (right y-axis, logarithmic scale).
 
 <!-- ![Self consistent energy convergence](visualization/image.png) -->
 
@@ -643,7 +643,7 @@ To run the validation script:
 python physics_validation.py
 ```
 
-The script uses the parameter of the grid and bisection from the `config.yaml` and generates a two-panel comparison. Below is displayed an example produced for $r_\text{max}=10$, $h=10^{-3}$ (initial values in the `config.yaml` shipped with the repo):
+The script uses the parameter of the grid and bisection from the `config.yaml` and generates a two-panel comparison. An example is displayed below, produced for $r_\text{max}=10$ and $h=10^{-3}$ (initial values in the `config.yaml` shipped with the repo):
 
 ![Code Validation](physics_validation.png)
 
@@ -717,19 +717,19 @@ From the density distribution plot, it is clear that the introduction of the ele
 
 - In the **Hartree model**, the system gets "destabilized" and the energy increases to **-2.8615 a.u.**, closer to the experimental value. The Hartree potential introduces electron-electron repulsion, this forces the orbital to expand, shifting the electron density peak outward and reducing its maximum height.
 
-- When switching to a standard KS-DFT setup, using **full Hartree potential plus the Exchange correction**, the total energy increases to **-2.7234 a.u.**, and the density further expands outward.This behavior is not indicative of an error, indeed the Hartree-only model uses half of the Hartree potential as an *ad hoc* modification to remove self-interaction, which leads to a fortuitous lowering of the energy through error cancellation.\
-In contrast, the DFT approach uses the full Hartree term and adds an explicit exchange potential, making the resulting density more physically motivated and more transferable, and therefore the density distribution is more trustworthy than the one obtained from the half-Hartree construction.
+- When switching to a standard KS-DFT setup, using **full Hartree potential plus the Exchange correction**, the density further expands outward, and the total energy increases to **-2.7234 a.u.**, diverging even more from the experimental value compared to the energy obtained with the Hartree-only model. This behavior is not indicative of an error, indeed the Hartree-only model uses half of the Hartree potential as an *ad hoc* modification to remove self-interaction, which leads to a fortuitous lowering of the energy through error cancellation.\
+In contrast, the DFT approach uses the full Hartree term and adds an explicit exchange potential, making the resulting effective potential more physically motivated, and therefore the calculated density distribution is more trustworthy than the one obtained from the half-Hartree potential.
 
-- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a.u.**. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
+- Finally in the **Hartree + Exchange + Correlation** model, the introduction of the correlation potential accounts for electron avoidance beyond the Pauli exclusion. In practice, this term corrects the overestimation of the electron-electron repulsion of the Hartree + Exchange model. As a result, the system is stabilized and the total energy decreases to **-2.8340 a.u.**, achieving 2.4% agreement with the experimental value. Consistently, the density becomes slightly more contracted toward the nucleus compared to the exchange-only case.
 
 ---
 
 ## Conclusions
 
-A radial Kohn–Sham DFT solver for the helium atom was successfully implemented by progressively introducing electron–electron interaction terms. The simulations illustrate the competition between nuclear attraction and electronic repulsion, and how it reshapes the effective potential and the orbital.\
+A radial Kohn–Sham DFT solver for the helium atom was implemented by progressively introducing electron–electron interaction terms. The simulations demonstrate how the introduction of more advanced theories reshapes the effective potential and the orbital.\
 The results highlight the "screening" effect of the Hartree potential, which drives orbital expansion and total energy increase.
-Notably, the transition from the "Hartree-only" model to the formal DFT framework (Hartree + Exchange) introduces a counterintuitive increase in total energy. This is a consequence of moving from an *ad hoc* self-interaction-free Hartree construction to a full Kohn-Sham approach where the electron interacts with the total density.In this context, the LDA exchange potential only partially compensates for the self-interaction energy, a phenomenon known as the Self-Interaction Error.
+Notably, the transition from the "Hartree-only" model to the formal DFT framework (Hartree + Exchange) introduces a counterintuitive further divergence from the experimental values. This is a consequence of moving from an *ad hoc* self-interaction-free Hartree construction to a full Kohn-Sham approach where the electron interacts with the total density. In this context, the LDA exchange potential only partially compensates for the self-interaction energy.
 
-The fully correlated model (LDA with CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.). The remaining discrepancy between the calculated total energy and the experimental reference is attributable to well-known limitations of LDA.
+The fully correlated model (Hartree + Exchange + CA-Correlation) yields a ground state energy of -2.8340 a.u., achieving an accuracy within 2.4% of the experimental value (-2.9037 a.u.). The remaining discrepancy between the calculated total energy and the experimental reference is related to well-known limitations of LDA.
 
 Overall, this project offers an implementation of a self-consistent Kohn–Sham solver for a simple case such as the Helium atom, making it easy to show how different approximations (Hartree, exchange, correlation) modify the effective potential, the density, and the total energy.
