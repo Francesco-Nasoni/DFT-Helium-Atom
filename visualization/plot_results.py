@@ -141,6 +141,8 @@ if __name__ == "__main__":
 
     script_dir = Path(__file__).parent
     base_dir = script_dir.parent
+
+    # ---- ARGUMENTS MANAGEMENT ----
     
     # Get output directory from command line argument or use default
     if len(sys.argv) > 1:
@@ -153,6 +155,8 @@ if __name__ == "__main__":
     
     # Get save directory from third argument, default to script_dir
     save_dir = Path(sys.argv[3]) if len(sys.argv) > 3 else script_dir
+
+    # ------------------------------
 
     scf_log = outputs_dir / "scf_log.csv"
     profiles_dat = outputs_dir / "profiles_final.dat"

@@ -49,7 +49,7 @@ def solve_schrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
     # Flip V_eff to match the reversed grid for backward integration
     V_eff_rev = np.flip(V_eff)
 
-    # Look for two points where u(0) chenges sign for the bisect method
+    # Look for two points where u(0) changes sign for the bisect method
     u_0 = verlet_integrate_1D(
         lambda r, ur, idx: F(E_bounds[0], Z, V_eff_rev[idx], r, ur),
         u_rmax,
@@ -90,7 +90,7 @@ def solve_schrodinger(grid, Z, V_eff, E_bounds, E_rough_step):
         xtol=1e-8,
     )
 
-    # NOTE: np.flip is necessary since we are integrating backwords r_max -> 0
+    # NOTE: np.flip is necessary since we are integrating backwards r_max -> 0
     u_int = np.flip(
         verlet_integrate_1D(
             lambda r, ur, idx: F(E_root, Z, V_eff_rev[idx], r, ur),

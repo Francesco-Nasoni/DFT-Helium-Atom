@@ -44,7 +44,7 @@ def save_profiles(path, r, **fields):
     names = ["r"]
     arrays = [r]
 
-    # Unpack columns passed as kewyword arg
+    # Unpack columns passed as keyword arg
     for name, arr in fields.items():
         if arr is None:
             continue
